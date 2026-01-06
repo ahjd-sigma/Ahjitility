@@ -1,0 +1,2334 @@
+﻿[
+    {
+      "outputName": "Refined Diamond",
+      "outputItemId": "REFINED_DIAMOND",
+      "durationSeconds": 28800,
+      "ingredients": [
+      {
+      "name": "Enchanted Diamond Block",
+      "itemId": "ENCHANTED_DIAMOND_BLOCK",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Refined Mithril",
+      "outputItemId": "REFINED_MITHRIL",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Enchanted Mithril",
+      "itemId": "ENCHANTED_MITHRIL",
+      "quantity": 160
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Refined Titanium",
+      "outputItemId": "REFINED_TITANIUM",
+      "durationSeconds": 43200,
+      "ingredients": [
+      {
+      "name": "Enchanted Titanium",
+      "itemId": "ENCHANTED_TITANIUM",
+      "quantity": 16
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Refined Umber",
+      "outputItemId": "REFINED_UMBER",
+      "durationSeconds": 3600,
+      "ingredients": [
+      {
+      "name": "Enchanted Umber",
+      "itemId": "ENCHANTED_UMBER",
+      "quantity": 160
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Refined Tungsten",
+      "outputItemId": "REFINED_TUNGSTEN",
+      "durationSeconds": 3600,
+      "ingredients": [
+      {
+      "name": "Enchanted Tungsten",
+      "itemId": "ENCHANTED_TUNGSTEN",
+      "quantity": 160
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Bejeweled Handle",
+      "outputItemId": "BEJEWELED_HANDLE",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Glacite Jewel",
+      "itemId": "GLACITE_JEWEL",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Drill Motor",
+      "outputItemId": "DRILL_ENGINE",
+      "durationSeconds": 108000,
+      "ingredients": [
+      {
+      "name": "Treasurite",
+      "itemId": "TREASURITE",
+      "quantity": 10
+      },
+      {
+      "name": "Enchanted Iron Block",
+      "itemId": "ENCHANTED_IRON_BLOCK",
+      "quantity": 1
+      },
+      {
+      "name": "Enchanted Redstone Block",
+      "itemId": "ENCHANTED_REDSTONE_BLOCK",
+      "quantity": 3
+      },
+      {
+      "name": "Golden Plate",
+      "itemId": "GOLDEN_PLATE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Fuel Canister",
+      "outputItemId": "FUEL_TANK",
+      "durationSeconds": 36000,
+      "ingredients": [
+      {
+      "name": "Enchanted Coal Block",
+      "itemId": "ENCHANTED_COAL_BLOCK",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Gemstone Mixture",
+      "outputItemId": "GEMSTONE_MIXTURE",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Fine Jade Gemstone",
+      "itemId": "FINE_JADE_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Fine Amber Gemstone",
+      "itemId": "FINE_AMBER_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Fine Amethyst Gemstone",
+      "itemId": "FINE_AMETHYST_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Fine Sapphire Gemstone",
+      "itemId": "FINE_SAPPHIRE_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Sludge Juice",
+      "itemId": "SLUDGE_JUICE",
+      "quantity": 320
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Glacite Amalgamation",
+      "outputItemId": "GLACITE_AMALGAMATION",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Fine Onyx Gemstone",
+      "itemId": "FINE_ONYX_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Fine Citrine Gemstone",
+      "itemId": "FINE_CITRINE_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Fine Peridot Gemstone",
+      "itemId": "FINE_PERIDOT_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Fine Aquamarine Gemstone",
+      "itemId": "FINE_AQUAMARINE_GEM",
+      "quantity": 4
+      },
+      {
+      "name": "Enchanted Glacite",
+      "itemId": "ENCHANTED_GLACITE",
+      "quantity": 256
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Golden Plate",
+      "outputItemId": "GOLDEN_PLATE",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 1
+      },
+      {
+      "name": "Enchanted Gold Block",
+      "itemId": "ENCHANTED_GOLD_BLOCK",
+      "quantity": 2
+      },
+      {
+      "name": "Glacite Jewel",
+      "itemId": "GLACITE_JEWEL",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril Plate",
+      "outputItemId": "MITHRIL_PLATE",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 5
+      },
+      {
+      "name": "Golden Plate",
+      "itemId": "GOLDEN_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Enchanted Iron Block",
+      "itemId": "ENCHANTED_IRON_BLOCK",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Tungsten Plate",
+      "outputItemId": "TUNGSTEN_PLATE",
+      "durationSeconds": 10800,
+      "ingredients": [
+      {
+      "name": "Refined Tungsten",
+      "itemId": "REFINED_TUNGSTEN",
+      "quantity": 4
+      },
+      {
+      "name": "Glacite Amalgamation",
+      "itemId": "GLACITE_AMALGAMATION",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Umber Plate",
+      "outputItemId": "UMBER_PLATE",
+      "durationSeconds": 10800,
+      "ingredients": [
+      {
+      "name": "Refined Umber",
+      "itemId": "REFINED_UMBER",
+      "quantity": 4
+      },
+      {
+      "name": "Glacite Amalgamation",
+      "itemId": "GLACITE_AMALGAMATION",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Plate",
+      "outputItemId": "PERFECT_PLATE",
+      "durationSeconds": 1800,
+      "ingredients": [
+      {
+      "name": "Umber Plate",
+      "itemId": "UMBER_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Tungsten Plate",
+      "itemId": "TUNGSTEN_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Mithril Plate",
+      "itemId": "MITHRIL_PLATE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril Drill SX-R226",
+      "outputItemId": "MITHRIL_DRILL_1",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 3
+      },
+      {
+      "name": "Fuel Canister",
+      "itemId": "FUEL_TANK",
+      "quantity": 1
+      },
+      {
+      "name": "Drill Motor",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril Drill SX-R326",
+      "outputItemId": "MITHRIL_DRILL_2",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Mithril Drill SX-R226",
+      "itemId": "MITHRIL_DRILL_1",
+      "quantity": 1
+      },
+      {
+      "name": "Golden Plate",
+      "itemId": "GOLDEN_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Mithril Plate",
+      "itemId": "MITHRIL_PLATE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Ruby Drill TX-15",
+      "outputItemId": "GEMSTONE_DRILL_1",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Fine Ruby Gemstone",
+      "itemId": "FINE_RUBY_GEM",
+      "quantity": 6
+      },
+      {
+      "name": "Fuel Canister",
+      "itemId": "FUEL_TANK",
+      "quantity": 1
+      },
+      {
+      "name": "Drill Motor",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Gemstone Drill LT-522",
+      "outputItemId": "GEMSTONE_DRILL_2",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Ruby Drill TX-15",
+      "itemId": "GEMSTONE_DRILL_1",
+      "quantity": 1
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Topaz Drill KGR-12",
+      "outputItemId": "GEMSTONE_DRILL_3",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Gemstone Drill LT-522",
+      "itemId": "GEMSTONE_DRILL_2",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Topaz Gemstone",
+      "itemId": "FLAWLESS_TOPAZ_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 3
+      },
+      {
+      "name": "Magma Core",
+      "itemId": "MAGMA_CORE",
+      "quantity": 8
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Jasper Drill X",
+      "outputItemId": "GEMSTONE_DRILL_4",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Topaz Drill KGR-12",
+      "itemId": "GEMSTONE_DRILL_3",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Jasper Gemstone",
+      "itemId": "FLAWLESS_JASPER_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Treasurite",
+      "itemId": "TREASURITE",
+      "quantity": 100
+      },
+      {
+      "name": "Magma Core",
+      "itemId": "MAGMA_CORE",
+      "quantity": 16
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Topaz Rod",
+      "outputItemId": "POLISHED_TOPAZ_ROD",
+      "durationSeconds": 43200,
+      "ingredients": [
+      {
+      "name": "Flawless Topaz Gemstone",
+      "itemId": "FLAWLESS_TOPAZ_GEM",
+      "quantity": 2
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Drill DR-X355",
+      "outputItemId": "TITANIUM_DRILL_1",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 8
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 8
+      },
+      {
+      "name": "Drill Engine",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 1
+      },
+      {
+      "name": "Fuel Tank",
+      "itemId": "FUEL_TANK",
+      "quantity": 1
+      },
+      {
+      "name": "Golden Plate",
+      "itemId": "GOLDEN_PLATE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Drill DR-X455",
+      "outputItemId": "TITANIUM_DRILL_2",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Titanium Drill DR-X355",
+      "itemId": "TITANIUM_DRILL_1",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 10
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 12
+      },
+      {
+      "name": "Mithril Plate",
+      "itemId": "MITHRIL_PLATE",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Drill DR-X555",
+      "outputItemId": "TITANIUM_DRILL_3",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Titanium Drill DR-X455",
+      "itemId": "TITANIUM_DRILL_2",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 20
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 16
+      },
+      {
+      "name": "Enchanted Iron Block",
+      "itemId": "ENCHANTED_IRON_BLOCK",
+      "quantity": 2
+      },
+      {
+      "name": "Mithril Plate",
+      "itemId": "MITHRIL_PLATE",
+      "quantity": 10
+      },
+      {
+      "name": "Plasma",
+      "itemId": "PLASMA",
+      "quantity": 20
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Drill DR-X655",
+      "outputItemId": "TITANIUM_DRILL_4",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Titanium Drill DR-X555",
+      "itemId": "TITANIUM_DRILL_3",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Ruby Gemstone",
+      "itemId": "FLAWLESS_RUBY_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Corleonite",
+      "itemId": "CORLEONITE",
+      "quantity": 30
+      },
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 5
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 32
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 16
+      },
+      {
+      "name": "Mithril Plate",
+      "itemId": "MITHRIL_PLATE",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Chisel",
+      "outputItemId": "CHISEL",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      },
+      {
+      "name": "Tungsten",
+      "itemId": "TUNGSTEN",
+      "quantity": 64
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Reinforced Chisel",
+      "outputItemId": "REINFORCED_CHISEL",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Chisel",
+      "itemId": "CHISEL",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Tungsten",
+      "itemId": "REFINED_TUNGSTEN",
+      "quantity": 2
+      },
+      {
+      "name": "Refined Umber",
+      "itemId": "REFINED_UMBER",
+      "quantity": 2
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Glacite-Plated Chisel",
+      "outputItemId": "GLACITE_CHISEL",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Reinforced Chisel",
+      "itemId": "REINFORCED_CHISEL",
+      "quantity": 1
+      },
+      {
+      "name": "Glacite Amalgamation",
+      "itemId": "GLACITE_AMALGAMATION",
+      "quantity": 8
+      },
+      {
+      "name": "Mithril Plate",
+      "itemId": "MITHRIL_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Chisel",
+      "outputItemId": "PERFECT_CHISEL",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Glacite-Plated Chisel",
+      "itemId": "GLACITE_CHISEL",
+      "quantity": 1
+      },
+      {
+      "name": "Perfect Plate",
+      "itemId": "PERFECT_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Divan\u0027s Drill",
+      "outputItemId": "DIVAN_DRILL",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Titanium Drill DR-X655",
+      "itemId": "TITANIUM_DRILL_4",
+      "quantity": 1
+      },
+      {
+      "name": "Divan\u0027s Alloy",
+      "itemId": "DIVAN_ALLOY",
+      "quantity": 1
+      }
+      ],
+      "coinCost": 50000000
+    },
+    {
+      "outputName": "Mithril Necklace",
+      "outputItemId": "MITHRIL_NECKLACE",
+      "durationSeconds": 3600,
+      "ingredients": [
+      {
+      "name": "Enchanted Mithril",
+      "itemId": "ENCHANTED_MITHRIL",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril Cloak",
+      "outputItemId": "MITHRIL_CLOAK",
+      "durationSeconds": 3600,
+      "ingredients": [
+      {
+      "name": "Enchanted Mithril",
+      "itemId": "ENCHANTED_MITHRIL",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril Belt",
+      "outputItemId": "MITHRIL_BELT",
+      "durationSeconds": 3600,
+      "ingredients": [
+      {
+      "name": "Enchanted Mithril",
+      "itemId": "ENCHANTED_MITHRIL",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril Gauntlet",
+      "outputItemId": "MITHRIL_GAUNTLET",
+      "durationSeconds": 3600,
+      "ingredients": [
+      {
+      "name": "Enchanted Mithril",
+      "itemId": "ENCHANTED_MITHRIL",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Necklace",
+      "outputItemId": "TITANIUM_NECKLACE",
+      "durationSeconds": 16200,
+      "ingredients": [
+      {
+      "name": "Refined Mineral",
+      "itemId": "REFINED_MINERAL",
+      "quantity": 16
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 1
+      },
+      {
+      "name": "Mithril Necklace",
+      "itemId": "MITHRIL_NECKLACE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Cloak",
+      "outputItemId": "TITANIUM_CLOAK",
+      "durationSeconds": 16200,
+      "ingredients": [
+      {
+      "name": "Refined Mineral",
+      "itemId": "REFINED_MINERAL",
+      "quantity": 16
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 1
+      },
+      {
+      "name": "Mithril Cloak",
+      "itemId": "MITHRIL_CLOAK",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Belt",
+      "outputItemId": "TITANIUM_BELT",
+      "durationSeconds": 16200,
+      "ingredients": [
+      {
+      "name": "Refined Mineral",
+      "itemId": "REFINED_MINERAL",
+      "quantity": 16
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 1
+      },
+      {
+      "name": "Mithril Belt",
+      "itemId": "MITHRIL_BELT",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Gauntlet",
+      "outputItemId": "TITANIUM_GAUNTLET",
+      "durationSeconds": 16200,
+      "ingredients": [
+      {
+      "name": "Refined Mineral",
+      "itemId": "REFINED_MINERAL",
+      "quantity": 16
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 1
+      },
+      {
+      "name": "Mithril Gauntlet",
+      "itemId": "MITHRIL_GAUNTLET",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Talisman",
+      "outputItemId": "TITANIUM_TALISMAN",
+      "durationSeconds": 50400,
+      "ingredients": [
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Ring",
+      "outputItemId": "TITANIUM_RING",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 6
+      },
+      {
+      "name": "Titanium Talisman",
+      "itemId": "TITANIUM_TALISMAN",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Artifact",
+      "outputItemId": "TITANIUM_ARTIFACT",
+      "durationSeconds": 129600,
+      "ingredients": [
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 12
+      },
+      {
+      "name": "Titanium Ring",
+      "itemId": "TITANIUM_RING",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Relic",
+      "outputItemId": "TITANIUM_RELIC",
+      "durationSeconds": 259200,
+      "ingredients": [
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 20
+      },
+      {
+      "name": "Titanium Artifact",
+      "itemId": "TITANIUM_ARTIFACT",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Divan\u0027s Powder Coating",
+      "outputItemId": "DIVAN_POWDER_COATING",
+      "durationSeconds": 129600,
+      "ingredients": [
+      {
+      "name": "Glossy Gemstone",
+      "itemId": "GLOSSY_GEMSTONE",
+      "quantity": 32
+      },
+      {
+      "name": "Refined Mineral",
+      "itemId": "REFINED_MINERAL",
+      "quantity": 16
+      },
+      {
+      "name": "Divan Fragment",
+      "itemId": "DIVAN_FRAGMENT",
+      "quantity": 5
+      },
+      {
+      "name": "Enchanted Gold Block",
+      "itemId": "ENCHANTED_GOLD_BLOCK",
+      "quantity": 16
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Helmet Of Divan",
+      "outputItemId": "DIVAN_HELMET",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Flawless Ruby Gemstone",
+      "itemId": "FLAWLESS_RUBY_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Divan Fragment",
+      "itemId": "DIVAN_FRAGMENT",
+      "quantity": 5
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Chestplate Of Divan",
+      "outputItemId": "DIVAN_CHESTPLATE",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Flawless Ruby Gemstone",
+      "itemId": "FLAWLESS_RUBY_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Divan Fragment",
+      "itemId": "DIVAN_FRAGMENT",
+      "quantity": 8
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Leggings Of Divan",
+      "outputItemId": "DIVAN_LEGGINGS",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Flawless Ruby Gemstone",
+      "itemId": "FLAWLESS_RUBY_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Divan Fragment",
+      "itemId": "DIVAN_FRAGMENT",
+      "quantity": 7
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Boots Of Divan",
+      "outputItemId": "DIVAN_BOOTS",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Flawless Ruby Gemstone",
+      "itemId": "FLAWLESS_RUBY_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Divan Fragment",
+      "itemId": "DIVAN_FRAGMENT",
+      "quantity": 4
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Amber Necklace",
+      "outputItemId": "AMBER_NECKLACE",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Glossy Gemstone",
+      "itemId": "GLOSSY_GEMSTONE",
+      "quantity": 32
+      },
+      {
+      "name": "Flawless Amber Gemstone",
+      "itemId": "FLAWLESS_AMBER_GEM",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Sapphire Cloak",
+      "outputItemId": "SAPPHIRE_CLOAK",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Glossy Gemstone",
+      "itemId": "GLOSSY_GEMSTONE",
+      "quantity": 32
+      },
+      {
+      "name": "Flawless Sapphire Gemstone",
+      "itemId": "FLAWLESS_SAPPHIRE_GEM",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Jade Belt",
+      "outputItemId": "JADE_BELT",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Glossy Gemstone",
+      "itemId": "GLOSSY_GEMSTONE",
+      "quantity": 32
+      },
+      {
+      "name": "Flawless Jade Gemstone",
+      "itemId": "FLAWLESS_JADE_GEM",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Amethyst Gauntlet",
+      "outputItemId": "AMETHYST_GAUNTLET",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Glossy Gemstone",
+      "itemId": "GLOSSY_GEMSTONE",
+      "quantity": 32
+      },
+      {
+      "name": "Flawless Amethyst Gemstone",
+      "itemId": "FLAWLESS_AMETHYST_GEM",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Gemstone Chamber",
+      "outputItemId": "GEMSTONE_CHAMBER",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Worm Membrane",
+      "itemId": "WORM_MEMBRANE",
+      "quantity": 100
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": 25000
+    },
+    {
+      "outputName": "Dwarven Handwarmers",
+      "outputItemId": "DWARVEN_HANDWARMERS",
+      "durationSeconds": 14400,
+      "ingredients": [
+      {
+      "name": "Flawless Jade Gemstone",
+      "itemId": "FLAWLESS_JADE_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Amber Gemstone",
+      "itemId": "FLAWLESS_AMBER_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Tungsten Plate",
+      "itemId": "TUNGSTEN_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Umber Plate",
+      "itemId": "UMBER_PLATE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Dwarven Metal Talisman",
+      "outputItemId": "DWARVEN_METAL",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Refined Umber",
+      "itemId": "REFINED_UMBER",
+      "quantity": 4
+      },
+      {
+      "name": "Refined Tungsten",
+      "itemId": "REFINED_TUNGSTEN",
+      "quantity": 4
+      },
+      {
+      "name": "Glacite Amalgamation",
+      "itemId": "GLACITE_AMALGAMATION",
+      "quantity": 4
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Pendant Of Divan",
+      "outputItemId": "DIVAN_PENDANT",
+      "durationSeconds": 604800,
+      "ingredients": [
+      {
+      "name": "Shattered Locket",
+      "itemId": "SHATTERED_PENDANT",
+      "quantity": 1
+      },
+      {
+      "name": "Perfect Plate",
+      "itemId": "PERFECT_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Divan Fragment",
+      "itemId": "DIVAN_FRAGMENT",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Diamonite",
+      "outputItemId": "DIAMONITE",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 3
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Pocket Iceberg",
+      "outputItemId": "POCKET_ICEBERG",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Glacite Jewel",
+      "itemId": "GLACITE_JEWEL",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Petrified Starfall",
+      "outputItemId": "PETRIFIED_STARFALL",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Starfall",
+      "itemId": "STARFALL",
+      "quantity": 512
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Pure Mithril",
+      "outputItemId": "PURE_MITHRIL",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Dwarven Geode",
+      "outputItemId": "ROCK_GEMSTONE",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Enchanted Cobblestone",
+      "itemId": "ENCHANTED_COBBLESTONE",
+      "quantity": 128
+      },
+      {
+      "name": "Treasurite",
+      "itemId": "TREASURITE",
+      "quantity": 64
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium Tesseract",
+      "outputItemId": "TITANIUM_TESSERACT",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 1
+      },
+      {
+      "name": "Enchanted Lapis Lazuli",
+      "itemId": "ENCHANTED_LAPIS_LAZULI",
+      "quantity": 16
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Gleaming Crystal",
+      "outputItemId": "GLEAMING_CRYSTAL",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Glossy Gemstone",
+      "itemId": "GLOSSY_GEMSTONE",
+      "quantity": 32
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Scorched Topaz",
+      "outputItemId": "HOT_STUFF",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Enchanted Hard Stone",
+      "itemId": "ENCHANTED_HARD_STONE",
+      "quantity": 128
+      },
+      {
+      "name": "Flawless Topaz Gemstone",
+      "itemId": "FLAWLESS_TOPAZ_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Amber Material",
+      "outputItemId": "AMBER_MATERIAL",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Fine Amber Gemstone",
+      "itemId": "FINE_AMBER_GEM",
+      "quantity": 12
+      },
+      {
+      "name": "Golden Plate",
+      "itemId": "GOLDEN_PLATE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Frigid Husk",
+      "outputItemId": "FRIGID_HUSK",
+      "durationSeconds": 21600,
+      "ingredients": [
+      {
+      "name": "Glacite Amalgamation",
+      "itemId": "GLACITE_AMALGAMATION",
+      "quantity": 4
+      },
+      {
+      "name": "Flawless Onyx Gemstone",
+      "itemId": "FLAWLESS_ONYX_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Starfall Seasoning",
+      "outputItemId": "STARFALL_SEASONING",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Treasurite",
+      "itemId": "TREASURITE",
+      "quantity": 16
+      },
+      {
+      "name": "Starfall",
+      "itemId": "STARFALL",
+      "quantity": 64
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Goblin Omelette",
+      "outputItemId": "GOBLIN_OMELETTE",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Goblin Egg",
+      "itemId": "GOBLIN_EGG",
+      "quantity": 96
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Spicy Goblin Omelette",
+      "outputItemId": "GOBLIN_OMELETTE_SPICY",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Red Goblin Egg",
+      "itemId": "GOBLIN_EGG_RED",
+      "quantity": 96
+      },
+      {
+      "name": "Flawless Ruby Gemstone",
+      "itemId": "FLAWLESS_RUBY_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Goblin Omelette",
+      "itemId": "GOBLIN_OMELETTE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Pesto Goblin Omelette",
+      "outputItemId": "GOBLIN_OMELETTE_PESTO",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Green Goblin Egg",
+      "itemId": "GOBLIN_EGG_GREEN",
+      "quantity": 96
+      },
+      {
+      "name": "Flawless Jade Gemstone",
+      "itemId": "FLAWLESS_JADE_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Goblin Omelette",
+      "itemId": "GOBLIN_OMELETTE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Sunny Side Goblin Omelette",
+      "outputItemId": "GOBLIN_OMELETTE_SUNNY_SIDE",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Yellow Goblin Egg",
+      "itemId": "GOBLIN_EGG_YELLOW",
+      "quantity": 96
+      },
+      {
+      "name": "Flawless Topaz Gemstone",
+      "itemId": "FLAWLESS_TOPAZ_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Goblin Omelette",
+      "itemId": "GOBLIN_OMELETTE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Blue Cheese Goblin Omelette",
+      "outputItemId": "GOBLIN_OMELETTE_BLUE_CHEESE",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Blue Goblin Egg",
+      "itemId": "GOBLIN_EGG_BLUE",
+      "quantity": 96
+      },
+      {
+      "name": "Flawless Sapphire Gemstone",
+      "itemId": "FLAWLESS_SAPPHIRE_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Goblin Omelette",
+      "itemId": "GOBLIN_OMELETTE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Tungsten Regulator",
+      "outputItemId": "TUNGSTEN_KEYCHAIN",
+      "durationSeconds": 64800,
+      "ingredients": [
+      {
+      "name": "Perfect Opal Gemstone",
+      "itemId": "PERFECT_OPAL_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Fuel Canister",
+      "itemId": "FUEL_TANK",
+      "quantity": 5
+      },
+      {
+      "name": "Tungsten Plate",
+      "itemId": "TUNGSTEN_PLATE",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril-Plated Drill Engine",
+      "outputItemId": "MITHRIL_DRILL_ENGINE",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Drill Motor",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 2
+      },
+      {
+      "name": "Mithril Plate",
+      "itemId": "MITHRIL_PLATE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium-Plated Drill Engine",
+      "outputItemId": "TITANIUM_DRILL_ENGINE",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Mithril-Plated Drill Engine",
+      "itemId": "MITHRIL_DRILL_ENGINE",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 2
+      },
+      {
+      "name": "Drill Motor",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Ruby-Polished Drill Engine",
+      "outputItemId": "RUBY_POLISHED_DRILL_ENGINE",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Titanium-Plated Drill Engine",
+      "itemId": "TITANIUM_DRILL_ENGINE",
+      "quantity": 1
+      },
+      {
+      "name": "Perfect Ruby Gemstone",
+      "itemId": "PERFECT_RUBY_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Precursor Apparatus",
+      "itemId": "PRECURSOR_APPARATUS",
+      "quantity": 4
+      },
+      {
+      "name": "Drill Motor",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 2
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Sapphire-Polished Drill Engine",
+      "outputItemId": "SAPPHIRE_POLISHED_DRILL_ENGINE",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Ruby-Polished Drill Engine",
+      "itemId": "RUBY_POLISHED_DRILL_ENGINE",
+      "quantity": 1
+      },
+      {
+      "name": "Perfect Sapphire Gemstone",
+      "itemId": "PERFECT_SAPPHIRE_GEM",
+      "quantity": 3
+      },
+      {
+      "name": "Precursor Apparatus",
+      "itemId": "PRECURSOR_APPARATUS",
+      "quantity": 8
+      },
+      {
+      "name": "Drill Motor",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 5
+      },
+      {
+      "name": "Plasma",
+      "itemId": "PLASMA",
+      "quantity": 16
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Amber-Polished Drill Engine",
+      "outputItemId": "AMBER_POLISHED_DRILL_ENGINE",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Sapphire-Polished Drill Engine",
+      "itemId": "SAPPHIRE_POLISHED_DRILL_ENGINE",
+      "quantity": 1
+      },
+      {
+      "name": "Perfect Amber Gemstone",
+      "itemId": "PERFECT_AMBER_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Precursor Apparatus",
+      "itemId": "PRECURSOR_APPARATUS",
+      "quantity": 16
+      },
+      {
+      "name": "Drill Motor",
+      "itemId": "DRILL_ENGINE",
+      "quantity": 5
+      },
+      {
+      "name": "Plasma",
+      "itemId": "PLASMA",
+      "quantity": 32
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mithril-Infused Fuel Tank",
+      "outputItemId": "MITHRIL_FUEL_TANK",
+      "durationSeconds": 86400,
+      "ingredients": [
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 5
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 10
+      },
+      {
+      "name": "Fuel Canister",
+      "itemId": "FUEL_TANK",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Titanium-Infused Fuel Tank",
+      "outputItemId": "TITANIUM_FUEL_TANK",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Mithril-Infused Fuel Tank",
+      "itemId": "MITHRIL_FUEL_TANK",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Titanium",
+      "itemId": "REFINED_TITANIUM",
+      "quantity": 10
+      },
+      {
+      "name": "Refined Diamond",
+      "itemId": "REFINED_DIAMOND",
+      "quantity": 5
+      },
+      {
+      "name": "Fuel Canister",
+      "itemId": "FUEL_TANK",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Gemstone Fuel Tank",
+      "outputItemId": "GEMSTONE_FUEL_TANK",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Titanium-Infused Fuel Tank",
+      "itemId": "TITANIUM_FUEL_TANK",
+      "quantity": 1
+      },
+      {
+      "name": "Precursor Apparatus",
+      "itemId": "PRECURSOR_APPARATUS",
+      "quantity": 5
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfectly-Cut Fuel Tank",
+      "outputItemId": "PERFECTLY_CUT_FUEL_TANK",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Gemstone Fuel Tank",
+      "itemId": "GEMSTONE_FUEL_TANK",
+      "quantity": 1
+      },
+      {
+      "name": "Precursor Apparatus",
+      "itemId": "PRECURSOR_APPARATUS",
+      "quantity": 16
+      },
+      {
+      "name": "Gemstone Mixture",
+      "itemId": "GEMSTONE_MIXTURE",
+      "quantity": 25
+      },
+      {
+      "name": "Plasma",
+      "itemId": "PLASMA",
+      "quantity": 32
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Amber Gemstone",
+      "outputItemId": "PERFECT_AMBER_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Amber Gemstone",
+      "itemId": "FLAWLESS_AMBER_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Amber Crystal",
+      "itemId": "AMBER_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Amethyst Gemstone",
+      "outputItemId": "PERFECT_AMETHYST_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Amethyst Gemstone",
+      "itemId": "FLAWLESS_AMETHYST_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Amethyst Crystal",
+      "itemId": "AMETHYST_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Jade Gemstone",
+      "outputItemId": "PERFECT_JADE_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Jade Gemstone",
+      "itemId": "FLAWLESS_JADE_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Jade Crystal",
+      "itemId": "JADE_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Jasper Gemstone",
+      "outputItemId": "PERFECT_JASPER_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Jasper Gemstone",
+      "itemId": "FLAWLESS_JASPER_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Jasper Crystal",
+      "itemId": "JASPER_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Opal Gemstone",
+      "outputItemId": "PERFECT_OPAL_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Opal Gemstone",
+      "itemId": "FLAWLESS_OPAL_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Opal Crystal",
+      "itemId": "OPAL_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Ruby Gemstone",
+      "outputItemId": "PERFECT_RUBY_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Ruby Gemstone",
+      "itemId": "FLAWLESS_RUBY_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Ruby Crystal",
+      "itemId": "RUBY_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Sapphire Gemstone",
+      "outputItemId": "PERFECT_SAPPHIRE_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Sapphire Gemstone",
+      "itemId": "FLAWLESS_SAPPHIRE_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Sapphire Crystal",
+      "itemId": "SAPPHIRE_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Topaz Gemstone",
+      "outputItemId": "PERFECT_TOPAZ_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Topaz Gemstone",
+      "itemId": "FLAWLESS_TOPAZ_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Topaz Crystal",
+      "itemId": "TOPAZ_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Onyx Gemstone",
+      "outputItemId": "PERFECT_ONYX_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Onyx Gemstone",
+      "itemId": "FLAWLESS_ONYX_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Onyx Crystal",
+      "itemId": "ONYX_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Citrine Gemstone",
+      "outputItemId": "PERFECT_CITRINE_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Citrine Gemstone",
+      "itemId": "FLAWLESS_CITRINE_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Citrine Crystal",
+      "itemId": "CITRINE_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Aquamarine Gemstone",
+      "outputItemId": "PERFECT_AQUAMARINE_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Aquamarine Gemstone",
+      "itemId": "FLAWLESS_AQUAMARINE_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Aquamarine Crystal",
+      "itemId": "AQUAMARINE_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Perfect Peridot Gemstone",
+      "outputItemId": "PERFECT_PERIDOT_GEM",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Flawless Peridot Gemstone",
+      "itemId": "FLAWLESS_PERIDOT_GEM",
+      "quantity": 5
+      },
+      {
+      "name": "Peridot Crystal",
+      "itemId": "PERIDOT_CRYSTAL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Bejeweled Collar",
+      "outputItemId": "BEJEWELED_COLLAR",
+      "durationSeconds": 7200,
+      "ingredients": [
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 4
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mole Pet",
+      "outputItemId": "MOLE;4",
+      "durationSeconds": 259200,
+      "ingredients": [
+      {
+      "name": "Claw Fossil",
+      "itemId": "CLAW_FOSSIL",
+      "quantity": 1
+      }
+      ],
+      "coinCost": 300000
+    },
+    {
+      "outputName": "Ammonite Pet",
+      "outputItemId": "AMMONITE;4",
+      "durationSeconds": 259200,
+      "ingredients": [
+      {
+      "name": "Helix Fossil",
+      "itemId": "HELIX",
+      "quantity": 1
+      }
+      ],
+      "coinCost": 300000
+    },
+    {
+      "outputName": "Penguin Pet",
+      "outputItemId": "PENGUIN;4",
+      "durationSeconds": 604800,
+      "ingredients": [
+      {
+      "name": "Webbed Fossil",
+      "itemId": "WEBBED_FOSSIL",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Aquamarine Gemstone",
+      "itemId": "FLAWLESS_AQUAMARINE_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "T-Rex Pet",
+      "outputItemId": "TYRANNOSAURUS;4",
+      "durationSeconds": 604800,
+      "ingredients": [
+      {
+      "name": "Footprint Fossil",
+      "itemId": "FOOTPRINT_FOSSIL",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Onyx Gemstone",
+      "itemId": "FLAWLESS_ONYX_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Spinosaurus Pet",
+      "outputItemId": "SPINOSAURUS;4",
+      "durationSeconds": 604800,
+      "ingredients": [
+      {
+      "name": "Spine Fossil",
+      "itemId": "SPINE_FOSSIL",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Aquamarine Gemstone",
+      "itemId": "FLAWLESS_AQUAMARINE_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Goblin Pet",
+      "outputItemId": "GOBLIN;4",
+      "durationSeconds": 604800,
+      "ingredients": [
+      {
+      "name": "Ugly Fossil",
+      "itemId": "UGLY_FOSSIL",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Amber Gemstone",
+      "itemId": "FLAWLESS_AMBER_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Ankylosaurus Pet",
+      "outputItemId": "ANKYLOSAURUS;4",
+      "durationSeconds": 604800,
+      "ingredients": [
+      {
+      "name": "Clubbed Fossil",
+      "itemId": "CLUBBED_FOSSIL",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Opal Gemstone",
+      "itemId": "FLAWLESS_OPAL_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Mammoth Pet",
+      "outputItemId": "MAMMOTH;4",
+      "durationSeconds": 604800,
+      "ingredients": [
+      {
+      "name": "Tusk Fossil",
+      "itemId": "TUSK_FOSSIL",
+      "quantity": 1
+      },
+      {
+      "name": "Flawless Onyx Gemstone",
+      "itemId": "FLAWLESS_ONYX_GEM",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Beacon II",
+      "outputItemId": "BEACON_2",
+      "durationSeconds": 72000,
+      "ingredients": [
+      {
+      "name": "Beacon I",
+      "itemId": "BEACON_1",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Beacon III",
+      "outputItemId": "BEACON_3",
+      "durationSeconds": 108000,
+      "ingredients": [
+      {
+      "name": "Beacon II",
+      "itemId": "BEACON_2",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 10
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Beacon IV",
+      "outputItemId": "BEACON_4",
+      "durationSeconds": 144000,
+      "ingredients": [
+      {
+      "name": "Beacon III",
+      "itemId": "BEACON_3",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 20
+      },
+      {
+      "name": "Plasma",
+      "itemId": "PLASMA",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Beacon V",
+      "outputItemId": "BEACON_5",
+      "durationSeconds": 180000,
+      "ingredients": [
+      {
+      "name": "Beacon IV",
+      "itemId": "BEACON_4",
+      "quantity": 1
+      },
+      {
+      "name": "Refined Mithril",
+      "itemId": "REFINED_MITHRIL",
+      "quantity": 40
+      },
+      {
+      "name": "Plasma",
+      "itemId": "PLASMA",
+      "quantity": 5
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Travel Scroll To The Dwarven Forge",
+      "outputItemId": "FORGE_TRAVEL_SCROLL",
+      "durationSeconds": 18000,
+      "ingredients": [
+      {
+      "name": "Titanium",
+      "itemId": "TITANIUM_ORE",
+      "quantity": 80
+      },
+      {
+      "name": "Enchanted Ender Pearl",
+      "itemId": "ENCHANTED_ENDER_PEARL",
+      "quantity": 16
+      },
+      {
+      "name": "Mithril",
+      "itemId": "MITHRIL_ORE",
+      "quantity": 48
+      }
+      ],
+      "coinCost": 25000
+    },
+    {
+      "outputName": "Travel Scroll To The Dwarven Base Camp",
+      "outputItemId": "BASE_CAMP_TRAVEL_SCROLL",
+      "durationSeconds": 36000,
+      "ingredients": [
+      {
+      "name": "Flawless Onyx Gemstone",
+      "itemId": "FLAWLESS_ONYX_GEM",
+      "quantity": 1
+      },
+      {
+      "name": "Enchanted Ender Pearl",
+      "itemId": "ENCHANTED_ENDER_PEARL",
+      "quantity": 16
+      }
+      ],
+      "coinCost": 500000
+    },
+    {
+      "outputName": "Power Crystal",
+      "outputItemId": "POWER_CRYSTAL",
+      "durationSeconds": 7200,
+      "ingredients": [
+      {
+      "name": "Starfall",
+      "itemId": "STARFALL",
+      "quantity": 256
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Tungsten Key",
+      "outputItemId": "TUNGSTEN_KEY",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Enchanted Tungsten",
+      "itemId": "ENCHANTED_TUNGSTEN",
+      "quantity": 192
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Umber Key",
+      "outputItemId": "UMBER_KEY",
+      "durationSeconds": 30,
+      "ingredients": [
+      {
+      "name": "Enchanted Umber",
+      "itemId": "ENCHANTED_UMBER",
+      "quantity": 192
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Skeleton Key",
+      "outputItemId": "SKELETON_KEY",
+      "durationSeconds": 1800,
+      "ingredients": [
+      {
+      "name": "Perfect Plate",
+      "itemId": "PERFECT_PLATE",
+      "quantity": 1
+      },
+      {
+      "name": "Bejeweled Handle",
+      "itemId": "BEJEWELED_HANDLE",
+      "quantity": 1
+      }
+      ],
+      "coinCost": null
+    },
+    {
+      "outputName": "Portable Campfire",
+      "outputItemId": "PORTABLE_CAMPFIRE",
+      "durationSeconds": 1800,
+      "ingredients": [
+      {
+      "name": "Refined Umber",
+      "itemId": "REFINED_UMBER",
+      "quantity": 1
+      },
+      {
+      "name": "Match-Sticks",
+      "itemId": "MATCH_STICKS",
+      "quantity": 16
+      }
+      ],
+      "coinCost": null
+    }
+]
