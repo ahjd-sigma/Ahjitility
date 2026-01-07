@@ -1,173 +1,182 @@
 package ui
 
-import com.google.gson.Gson
-import forge.Item
-import forge.PriceFetcher
 import javafx.application.Application
-import javafx.application.Platform
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
+import javafx.scene.control.Button
 import javafx.scene.control.Label
-import javafx.scene.control.SplitPane
 import javafx.scene.layout.Priority
-import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
-import ui.forge.*
-import java.util.concurrent.CompletableFuture
+import ui.forge.ForgeCalculator
 
 class MainApp : Application() {
     private val DARK_BG = "#2b2b2b"
+    private val ACCENT_COLOR = "#4a90e2"
 
-    private val priceFetcher = PriceFetcher()
-    private val calculator = PriceCalculator(priceFetcher)
-    private val controlsBar = ControlsBar()
-    private val forgeList = ForgeListView()
-    private val sidebar = RecipeSidebar(priceFetcher)
-
-    private var currentItems: MutableList<Item> = mutableListOf()
-
-    private val loadingOverlay = Label("Loading...").apply {
-        style = "-fx-background-color: rgba(0, 0, 0, 0.5); -fx-text-fill: orange; -fx-padding: 15px; -fx-background-radius: 5px; -fx-font-weight: bold; -fx-font-size: 16px;"
-        isVisible = false
-        isMouseTransparent = true
-    }
+    private lateinit var primaryStage: Stage
+    private lateinit var mainMenuScene: Scene
 
     override fun start(primaryStage: Stage) {
-        controlsBar.setupListeners { updateUI() }
+        this.primaryStage = primaryStage
 
-        forgeList.onItemSelected { item ->
-            sidebar.showRecipe(
-                item,
-                controlsBar.buyModeBox.value == "Instant Buy",
-                controlsBar.slotsBox.value ?: 1,
-                controlsBar.quickForgeBox.value ?: 0
-            )
-        }
+        // Create main menu
+        mainMenuScene = createMainMenu()
 
-        controlsBar.refreshButton.setOnAction {
-            loadingOverlay.isVisible = true
-            CompletableFuture.runAsync {
-                reloadAllData(forceRefreshPrices = true)
-            }.thenRun {
-                Platform.runLater {
-                    forgeList.setItems(currentItems)
-                    updateUI()
-                    loadingOverlay.isVisible = false
-                }
-            }
-        }
-
-        loadingOverlay.isVisible = true
-        CompletableFuture.runAsync {
-            reloadAllData()
-        }.thenRun {
-            Platform.runLater {
-                forgeList.setItems(currentItems)
-                updateUI()
-                loadingOverlay.isVisible = false
-            }
-        }
-
-        val splitPane = SplitPane()
-        splitPane.items.addAll(forgeList.listView, sidebar.node)
-        splitPane.setDividerPositions(0.4)
-        splitPane.style = "-fx-background-color: $DARK_BG;"
-
-        val content = VBox()
-        content.children.addAll(controlsBar.node, splitPane)
-        VBox.setVgrow(splitPane, Priority.ALWAYS)
-
-        val root = StackPane()
-        root.children.addAll(content, loadingOverlay)
-        StackPane.setAlignment(loadingOverlay, Pos.CENTER)
-
-        val scene = Scene(root, 900.0, 700.0)
-        primaryStage.title = "Ahjitility - Forge Manager"
-        primaryStage.scene = scene
+        primaryStage.title = "Ahjitility"
+        primaryStage.scene = mainMenuScene
+        primaryStage.width = 600.0
+        primaryStage.height = 500.0
         primaryStage.show()
     }
 
-    private fun updateUI() {
-        calculator.assignPrices(
-            currentItems,
-            controlsBar.sellModeBox.value == "Instant Sell",
-            controlsBar.buyModeBox.value == "Instant Buy",
-            controlsBar.slotsBox.value ?: 1,
-            controlsBar.quickForgeBox.value ?: 0,
-            controlsBar.bazaarTaxField.text.toDoubleOrNull() ?: 1.25,
-            controlsBar.ahTaxField.text.toDoubleOrNull() ?: 1.0
-        )
+    private fun createMainMenu(): Scene {
+        val root = VBox(20.0)
+        root.alignment = Pos.CENTER
+        root.padding = Insets(40.0)
+        root.style = "-fx-background-color: $DARK_BG;"
 
-        val quickForgeLevel = controlsBar.quickForgeBox.value ?: 0
-        val reduction = calculator.getQuickForgeReduction(quickForgeLevel)
+        // Title with gradient effect
+        val title = Label("Ahjitility")
+        title.style = """
+            -fx-text-fill: linear-gradient(to right, #4a90e2, #00d4ff, #4a90e2);
+            -fx-font-size: 32px;
+            -fx-font-weight: bold;
+            -fx-effect: dropshadow(gaussian, rgba(74, 144, 226, 0.6), 10, 0.5, 0, 2);
+        """.trimIndent()
 
-        val searchText = controlsBar.searchField.text.lowercase()
-        val filteredItems = currentItems.filter { item ->
-            val matchesSearch = if (searchText.isEmpty()) true
-            else item.displayName?.lowercase()?.contains(searchText) == true
+        // Calculator buttons
+        val forgeButton = createCalculatorButton(
+            "Forge Calculator",
+            "Calculate profits for forge recipes"
+        ) {
+            openCalculator(ForgeCalculator())
+        }
 
-            val baseDuration = item.durationSeconds ?: 0
-            val reducedDuration = (baseDuration.toDouble() * (1.0 - reduction)).toInt()
+        val bazaarButton = createCalculatorButton(
+            "Bazaar Flipper",
+            "Coming soon..."
+        ) {
+            // openCalculator(ui.calculators.BazaarFlipperCalculator())
+        }
+        bazaarButton.isDisable = true
+        bazaarButton.opacity = 0.5
 
-            val matchesDuration = when (controlsBar.durationRangeBox.value) {
-                "0s - 60s" -> reducedDuration in 0..60
-                "1min - 30min" -> reducedDuration in 61..1800
-                "30min - 1hour" -> reducedDuration in 1801..3600
-                "1hour - 6hours" -> reducedDuration in 3601..21600
-                "6h - 18h" -> reducedDuration in 21601..64800
-                "18h+" -> reducedDuration > 64800
-                else -> true
-            }
+        val auctionButton = createCalculatorButton(
+            "Auction House Tracker",
+            "Coming soon..."
+        ) {
+            // openCalculator(ui.calculators.AuctionTrackerCalculator())
+        }
+        auctionButton.isDisable = true
+        auctionButton.opacity = 0.5
 
-            matchesSearch && matchesDuration
-        }.toMutableList()
+        // Container for buttons
+        val buttonContainer = VBox(15.0)
+        buttonContainer.alignment = Pos.CENTER
+        buttonContainer.children.addAll(forgeButton, bazaarButton, auctionButton)
 
-        filteredItems.sortWith(compareByDescending<Item> {
-            when (controlsBar.sourcePriorityBox.value) {
-                "Bazaar First" -> if (it.isBazaar) 1 else 0
-                "AH First" -> if (!it.isBazaar) 1 else 0
-                else -> 0
-            }
-        }.thenByDescending {
-            if (controlsBar.sortModeBox.value == "Sort: Profit/Hour") it.profitPerHour
-            else (it.value - it.totalRecipeCost)
-        })
+        VBox.setVgrow(buttonContainer, Priority.ALWAYS)
 
-        forgeList.setItems(filteredItems)
-        sidebar.showRecipe(
-            forgeList.getSelectedItem(),
-            controlsBar.buyModeBox.value == "Instant Buy",
-            controlsBar.slotsBox.value ?: 1,
-            controlsBar.quickForgeBox.value ?: 0
-        )
+        root.children.addAll(title, buttonContainer)
+
+        val scene = Scene(root)
+
+        // Make buttons responsive to window width
+        scene.widthProperty().addListener { _, _, newWidth ->
+            val buttonWidth = (newWidth.toDouble() * 0.7).coerceIn(300.0, 500.0)
+            forgeButton.prefWidth = buttonWidth
+            bazaarButton.prefWidth = buttonWidth
+            auctionButton.prefWidth = buttonWidth
+        }
+
+        return scene
     }
 
-    private fun reloadAllData(forceRefreshPrices: Boolean = false) {
-        val items = loadItems()
-        currentItems.clear()
-        currentItems.addAll(items)
+    private fun createCalculatorButton(
+        title: String,
+        description: String,
+        action: () -> Unit
+    ): Button {
+        val button = Button()
 
-        priceFetcher.fetchAllPrices(force = forceRefreshPrices)
+        val titleLabel = Label(title)
+        titleLabel.style = """
+            -fx-text-fill: white;
+            -fx-font-size: 18px;
+            -fx-font-weight: bold;
+        """.trimIndent()
 
-        calculator.assignPrices(
-            currentItems,
-            controlsBar.sellModeBox.value == "Instant Sell",
-            controlsBar.buyModeBox.value == "Instant Buy",
-            controlsBar.slotsBox.value ?: 1,
-            controlsBar.quickForgeBox.value ?: 0,
-            controlsBar.bazaarTaxField.text.toDoubleOrNull() ?: 1.25,
-            controlsBar.ahTaxField.text.toDoubleOrNull() ?: 1.0
-        )
+        val descLabel = Label(description)
+        descLabel.style = """
+            -fx-text-fill: #cccccc;
+            -fx-font-size: 12px;
+        """.trimIndent()
+
+        val content = VBox(5.0)
+        content.alignment = Pos.CENTER_LEFT
+        content.children.addAll(titleLabel, descLabel)
+
+        button.graphic = content
+        button.minWidth = 300.0
+        button.maxWidth = 500.0
+        button.prefWidth = 400.0
+        button.prefHeight = 80.0
+        button.style = """
+            -fx-background-color: #3a3a3a;
+            -fx-text-fill: white;
+            -fx-background-radius: 8px;
+            -fx-cursor: hand;
+            -fx-border-color: #555555;
+            -fx-border-width: 1px;
+            -fx-border-radius: 8px;
+        """.trimIndent()
+
+        button.setOnMouseEntered {
+            button.style = """
+                -fx-background-color: #4a4a4a;
+                -fx-text-fill: white;
+                -fx-background-radius: 8px;
+                -fx-cursor: hand;
+                -fx-border-color: $ACCENT_COLOR;
+                -fx-border-width: 2px;
+                -fx-border-radius: 8px;
+            """.trimIndent()
+        }
+
+        button.setOnMouseExited {
+            button.style = """
+                -fx-background-color: #3a3a3a;
+                -fx-text-fill: white;
+                -fx-background-radius: 8px;
+                -fx-cursor: hand;
+                -fx-border-color: #555555;
+                -fx-border-width: 1px;
+                -fx-border-radius: 8px;
+            """.trimIndent()
+        }
+
+        button.setOnAction { action() }
+
+        return button
     }
 
-    private fun loadItems(): List<Item> {
-        val gson = Gson()
-        val jsonText = MainApp::class.java.getResourceAsStream("/forge/ForgeRecipes.json")
-            ?.bufferedReader()
-            ?.use { it.readText() }
-            ?: throw IllegalStateException("ForgeRecipes.json not found in resources")
-
-        return gson.fromJson(jsonText, Array<Item>::class.java).toList()
+    private fun openCalculator(calculator: Calculator) {
+        // Just swap the scene, keep window size/position as-is
+        val scene = calculator.createScene { returnToMainMenu() }
+        primaryStage.scene = scene
     }
+
+    private fun returnToMainMenu() {
+        // Just swap back to main menu, keep window size/position as-is
+        primaryStage.scene = mainMenuScene
+    }
+}
+
+// Base interface for all calculators
+interface Calculator {
+    val preferredWidth: Double
+    val preferredHeight: Double
+    fun createScene(onBack: () -> Unit): Scene
 }
