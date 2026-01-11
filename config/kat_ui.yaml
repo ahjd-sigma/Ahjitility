@@ -1,0 +1,56 @@
+card_min_width: 280.0
+card_padding: 12.0
+card_spacing: 10.0
+craft_card_bg: '#2b2b2b'
+craft_card_border_excluded: '#444444'
+upgrade_card_bg: '#2b2b2b'
+instant_craft_bg: '#1a2634'
+card_separator: '#444444'
+label_color_primary: '#cccccc'
+label_color_secondary: '#aaaaaa'
+label_color_muted: '#888888'
+font_size_extra_small: 11.0
+font_size_small: 13.0
+font_size_normal: 14.0
+font_size_large: 16.0
+font_size_title: 18.0
+spacing_tiny: 5.0
+spacing_small: 10.0
+border_radius_small: 4.0
+padding_small: 5.0
+padding_medium: 10.0
+style_label_secondary_bold: '-fx-text-fill: #aaaaaa; -fx-font-weight: bold; -fx-font-size:
+  13px;'
+style_label_small_yellow: '-fx-text-fill: #FFD700; -fx-font-size: 12px;'
+style_label_small: '-fx-text-fill: #cccccc; -fx-font-size: 12px;'
+style_label_normal: '-fx-text-fill: #cccccc; -fx-font-size: 14px;'
+style_label_extra_small_bold: '-fx-font-weight: bold; -fx-font-size: 10px;'
+style_badge_source: '-fx-background-color: rgba(60,60,60,0.5); -fx-padding: 1 4; -fx-background-radius:
+  3;'
+family_box_padding: 15.0
+family_box_spacing: 10.0
+family_box_radius: 10.0
+family_box_opacity_excluded: 0.6
+family_box_bg_excluded: '#2b2b2b'
+family_box_bg_normal: '#3c3f41'
+family_box_border_excluded: '#444444'
+family_box_border_partial: '#888888'
+main_padding: 10.0
+main_spacing: 10.0
+control_spacing: 15.0
+control_group_spacing: 20.0
+label_spacing: 5.0
+sidebar_width: 300.0
+search_field_width: 200.0
+sort_by_width: 200.0
+rarity_filter_width: 150.0
+buy_mode_width: 120.0
+tax_field_width: 50.0
+ui_update_debounce_ms: 100
+status_display_ms: 5000
+progress_polling_ms: 500
+card_separator_width: 260.0
+format_duration: '%.1fh'
+format_coins: '%,.0f'
+format_price: '%,.0f'
+format_percent: '%.1f%%'

@@ -1,0 +1,54 @@
+api:
+  coflnet_kat_data: https://sky.coflnet.com/api/kat/data
+  coflnet_sold_auctions: https://sky.coflnet.com/api/auctions/tag/{itemId}/sold?page=1&pageSize={pageSize}
+  hypixel_bazaar: https://api.hypixel.net/v2/skyblock/bazaar
+  moulberry_lbin: https://moulberry.codes/lowestbin.json
+rate_limits:
+  coflnet_requests_per_window: 30
+  coflnet_window_seconds: 10
+  price_timeout_minutes: 15
+  sales_timeout_hours: 24
+files:
+  kat_json_path: src/main/resources/kat/kat.json
+  kat_blacklist_path: src/main/resources/kat_blacklist.json
+time_reduction:
+  target_max_duration_hours: 0.05
+  enable_time_reduction: true
+  max_flowers: 30
+  max_bouquets: 10
+  default_flower_price: 100000.0
+  default_bouquet_price: 500000.0
+market:
+  bazaar_tax: 1.25
+  ah_multiplier: 1.0
+  default_bazaar_instant: false
+  ah_tax_thresholds:
+  - 1000000.0
+  - 1.0E7
+  - 1.0E8
+  ah_tax_rates:
+  - 1.0
+  - 2.0
+  - 3.0
+  - 3.5
+rarity:
+  list:
+  - COMMON
+  - UNCOMMON
+  - RARE
+  - EPIC
+  - LEGENDARY
+  - MYTHIC
+  next:
+    COMMON: UNCOMMON
+    UNCOMMON: RARE
+    RARE: EPIC
+    EPIC: LEGENDARY
+    LEGENDARY: MYTHIC
+  numbers:
+    COMMON: 0
+    UNCOMMON: 1
+    RARE: 2
+    EPIC: 3
+    LEGENDARY: 4
+    MYTHIC: 5

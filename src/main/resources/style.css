@@ -1,0 +1,126 @@
+/* Global Theme Variables */
+.root {
+    -fx-accent-color: #4a90e2;
+    -fx-dark-bg: #2b2b2b;
+    -fx-darker-bg: #1e1e1e;
+    -fx-text-primary: #cccccc;
+    -fx-field-bg: #333333;
+    -fx-button-bg: #3c3f41;
+    -fx-border-color-global: #444444;
+}
+
+/* Modern Dark Scrollbar Styling */
+.scroll-bar:vertical, .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .track, .scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
+    -fx-background-color: -fx-field-bg;
+    -fx-background-radius: 8;
+}
+
+.scroll-bar:vertical .thumb:hover, .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: -fx-button-bg;
+}
+
+.scroll-bar:vertical .thumb:pressed, .scroll-bar:horizontal .thumb:pressed {
+    -fx-background-color: -fx-accent-color; /* Accent color when dragging */
+}
+
+/* Hide the increment/decrement buttons for a cleaner look */
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+/* List view styling to remove borders and match background */
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: -fx-button-bg;
+}
+
+/* SplitPane Styling */
+.split-pane {
+    -fx-background-color: transparent !important;
+    -fx-border-color: transparent !important;
+    -fx-padding: 0 !important;
+}
+
+.split-pane *.split-pane-divider {
+    -fx-background-color: -fx-border-color-global !important;
+    -fx-padding: 0 1 0 1 !important;
+}
+
+/* ScrollPane Styling */
+.scroll-pane {
+    -fx-background-color: transparent !important;
+    -fx-border-color: transparent !important;
+    -fx-viewport-background-color: transparent !important;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent !important;
+}
+
+/* TabPane and Tab Styling */
+.tab-pane {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab-header-area {
+    -fx-padding: 0 0 5 0;
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab {
+    -fx-background-color: -fx-field-bg;
+    -fx-background-insets: 0 4 0 4;
+    -fx-background-radius: 6 6 0 0;
+    -fx-padding: 8 15 8 15;
+    -fx-cursor: hand;
+}
+
+.tab:hover {
+    -fx-background-color: -fx-button-bg;
+}
+
+.tab:selected {
+    -fx-background-color: -fx-accent-color;
+}
+
+.tab .tab-label {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: white;
+}
+
+/* Remove the focused blue border around tabs */
+.tab:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}

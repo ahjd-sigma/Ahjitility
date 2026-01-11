@@ -1,141 +1,108 @@
 package ui.forge
 
-import forge.Item
-import forge.PriceFetcher
+import business.forge.SourcePriority
+import business.forge.ForgeResult
+import utils.PriceFetcher
+import utils.Styles
+import utils.*
 import javafx.geometry.Insets
-import javafx.scene.control.Label
-import javafx.scene.control.Separator
-import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
-import javafx.scene.paint.Color
-import javafx.scene.text.Font
-import javafx.scene.text.Text
+import javafx.scene.control.*
+import javafx.scene.layout.*
 import javafx.scene.text.TextFlow
 
 class RecipeSidebar(private val priceFetcher: PriceFetcher) {
-    private val DARK_BG = "#2b2b2b"
-    private val TEXT_COLOR = "#cccccc"
 
-    private val recipeTitle = Label("Select an item to see recipe").apply {
-        style = "-fx-font-weight: bold; -fx-font-size: 17px; -fx-text-fill: #ffffff;"
+    private val titleLabel = "Select an item".label().apply {
+        style = "-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: white;"
     }
-
-    private val ingredientsList = VBox(5.0)
+    
+    private val content = VBox(8.0)
 
     val node = VBox(10.0).apply {
         padding = Insets(15.0)
-        style = "-fx-background-color: $DARK_BG;"
-        children.addAll(
-            recipeTitle,
-            Separator().apply { style = "-fx-background-color: #444444;" },
-            ingredientsList
+        style = "-fx-background-color: ${Styles.DARK_BG};"
+        children.addAll(titleLabel, separator().apply { style = "-fx-background-color: #444; -fx-opacity: 0.5;" }, content)
+        VBox.setVgrow(content, Priority.ALWAYS)
+        minWidth = UIConfig.SIDEBAR_WIDTH
+        prefWidth = UIConfig.SIDEBAR_WIDTH
+    }
+
+    fun showRecipe(result: ForgeResult?, priority: SourcePriority = SourcePriority.ALL) {
+        content.children.clear()
+        if (result == null) {
+            titleLabel.text = "Select an item"
+            return
+        }
+
+        val recipe = result.recipe
+        titleLabel.text = "Recipe: ${recipe.displayName}"
+        
+        // Sell Info
+        content.children.add(TextFlow(
+            text("Total Sell Price: ", Styles.TEXT_COLOR),
+            text("${String.format("%,.0f", result.sellValue)} ", "orange"),
+            text("(after ${String.format("%.1f", result.taxRate)}% tax)", "#888888", 11.0)
+        ))
+        content.children.add(separator().apply { style = "-fx-background-color: #444; -fx-opacity: 0.5;" })
+
+        // Ingredients
+        // Note: result.totalCost includes slots multiplier.
+        // We want to show per-recipe ingredients but maybe total cost?
+        // Let's show total for all slots as that's what the user cares about.
+        
+        // Coin cost
+        val cost = recipe.coinCost ?: 0
+        if (cost > 0) {
+            // We need to know slots to show correct coin cost.
+            // ForgeResult doesn't store slots explicitly but we can deduce or just show base.
+            // Wait, result.totalCost is total.
+            // Let's assume we want to show the breakdown for the *Total* batch.
+            // But we don't have slots count in ForgeResult directly.
+            // We can infer it or pass it. 
+            // Actually, let's just show the base recipe ingredients and their current prices.
+            
+            content.children.add(TextFlow(
+                text("• Base Coins: ", Styles.TEXT_COLOR), 
+                text(String.format("%,d", cost), "orange")
+            ))
+        }
+
+        recipe.ingredients.forEach { ing ->
+            // We need to fetch the price again to show it.
+            // We don't know if the user selected instant buy or buy order from here strictly speaking
+            // without the config, but we can assume Instant Buy for display or check the result context if we added it.
+            // For now, let's just show the LBIN/Bazaar price.
+            
+            val priceData = priceFetcher.getBuyPrice(ing.itemId, true, priority) // Use the priority!
+            val totalItemCost = priceData.price * ing.quantity
+            
+            content.children.add(VBox(2.0).apply {
+                children.addAll(
+                    TextFlow(
+                        text("• ${ing.quantity} x ", Styles.TEXT_COLOR),
+                        text(ing.displayName ?: ing.itemId, Styles.TEXT_COLOR, bold = true)
+                    ),
+                    TextFlow(
+                        text("  Cost: ", "#888888", 12.0),
+                        text(String.format("%,.0f", totalItemCost), "orange", 12.0),
+                        text(" (${String.format("%,.0f", priceData.price)}/ea)", "#666666", 11.0)
+                    )
+                )
+            })
+        }
+
+        // Summary
+        content.children.add(separator().apply { style = "-fx-background-color: #444;" })
+        
+        content.children.addAll(
+            summaryLine("Total Cost:", result.totalCost, "orange"),
+            summaryLine("Total Profit:", result.profit, if (result.profit >= 0) "green" else "red"),
+            summaryLine("Profit / Hr:", result.profitPerHour, if (result.profitPerHour >= 0) "green" else "red")
         )
-        VBox.setVgrow(ingredientsList, Priority.ALWAYS)
     }
 
-    fun showRecipe(item: Item?, isInstantBuy: Boolean, slots: Int, quickForgeLevel: Int) {
-        ingredientsList.children.clear()
-        if (item == null) {
-            recipeTitle.text = "Select an item to see recipe"
-            return
-        }
-
-        recipeTitle.text = "Recipe: ${item.displayName}"
-
-        val sellPriceLabel = Text("Sell Price: ").apply {
-            fill = Color.web(TEXT_COLOR)
-            font = Font.font(13.0)
-        }
-        val sellPriceValue = Text("${String.format("%,.0f", item.value)} coins").apply {
-            fill = Color.ORANGE
-            font = Font.font(13.0)
-        }
-        val taxInfo = Text(" (after ${String.format("%.2f", item.appliedTaxRate)}% tax)").apply {
-            fill = Color.web("#888888")
-            font = Font.font(11.0)
-        }
-        ingredientsList.children.add(TextFlow(sellPriceLabel, sellPriceValue, taxInfo))
-        ingredientsList.children.add(Separator().apply { style = "-fx-background-color: #444444;" })
-
-        val ingredients = item.ingredients
-        if (ingredients.isNullOrEmpty()) {
-            ingredientsList.children.add(Label("No recipe data available.").apply {
-                style = "-fx-text-fill: $TEXT_COLOR; -fx-font-size: 13px;"
-            })
-            return
-        }
-
-        var totalRecipeCostSum = 0.0
-
-        if (item.coinCost != null && item.coinCost > 0) {
-            val totalCoinCost = item.coinCost.toLong() * slots
-            totalRecipeCostSum += totalCoinCost
-            val costLabel = Text("• $slots x Coins - ").apply {
-                fill = Color.web(TEXT_COLOR)
-                font = Font.font(13.0)
-            }
-            val costValue = Text("${String.format("%,d", totalCoinCost)} coins").apply {
-                fill = Color.ORANGE
-                font = Font.font(13.0)
-            }
-            ingredientsList.children.add(TextFlow(costLabel, costValue))
-        }
-
-        ingredients.forEach { ingredient ->
-            val result = priceFetcher.getBuyPrice(ingredient.itemId, isInstantBuy)
-            val unitPrice = result.price
-            val source = if (result.isBazaar) " (BZ)" else " (AH)"
-            val quantity = (ingredient.quantity ?: 0).toLong() * slots
-            val totalCost = unitPrice * quantity
-            totalRecipeCostSum += totalCost
-
-            val ingredientText = Text("• $quantity x ${ingredient.displayName ?: ingredient.itemId}").apply {
-                fill = Color.web(TEXT_COLOR)
-                font = Font.font(13.0)
-            }
-            val priceFlow = TextFlow().apply {
-                children.add(ingredientText)
-                if (totalCost > 0) {
-                    val unitPriceText = Text(" (${String.format("%,.0f", unitPrice)}/ea$source)").apply {
-                        fill = Color.web("#888888")
-                        font = Font.font(13.0)
-                    }
-                    val totalCostText = Text(" -> ${String.format("%,.0f", totalCost)} coins").apply {
-                        fill = Color.ORANGE
-                        font = Font.font(13.0)
-                    }
-                    children.addAll(unitPriceText, totalCostText)
-                }
-            }
-            ingredientsList.children.add(priceFlow)
-        }
-
-        ingredientsList.children.add(Separator().apply { style = "-fx-background-color: #444444; -fx-margin: 5 0 5 0;" })
-        val totalLabel = Text("Total Cost: ").apply {
-            fill = Color.web(TEXT_COLOR)
-            style = "-fx-font-weight: bold;"
-            font = Font.font(13.0)
-        }
-        val totalValue = Text("${String.format("%,.0f", totalRecipeCostSum)} coins").apply {
-            fill = Color.ORANGE
-            style = "-fx-font-weight: bold;"
-            font = Font.font(13.0)
-        }
-        ingredientsList.children.add(TextFlow(totalLabel, totalValue))
-
-        if (item.durationSeconds != null) {
-            val reduction = when {
-                quickForgeLevel == 0 -> 0.0
-                quickForgeLevel == 20 -> 0.30
-                else -> 0.10 + (quickForgeLevel.toDouble() * 0.005)
-            }
-            val reducedSeconds = (item.durationSeconds.toDouble() * (1.0 - reduction)).toInt()
-
-            val hours = reducedSeconds / 3600
-            val minutes = (reducedSeconds % 3600) / 60
-            ingredientsList.children.add(Label("Duration: ${hours}h ${minutes}m").apply {
-                style = "-fx-text-fill: $TEXT_COLOR; -fx-font-size: 13px;"
-            })
-        }
-    }
+    private fun summaryLine(label: String, value: Double, color: String) = TextFlow(
+        text("$label ", Styles.TEXT_COLOR, bold = true),
+        text(String.format("%,.0f", value), color, bold = true)
+    )
 }

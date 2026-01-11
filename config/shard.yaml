@@ -1,0 +1,4 @@
+recipes_path: /shard/ShardRecipes.json
+default_bazaar_tax: 1.25
+default_ah_multiplier: 1.0
+hunter_fortune: 112
