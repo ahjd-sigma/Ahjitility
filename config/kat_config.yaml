@@ -16,8 +16,12 @@ time_reduction:
   enable_time_reduction: true
   max_flowers: 30
   max_bouquets: 10
-  default_flower_price: 100000.0
-  default_bouquet_price: 500000.0
+  default_flower_price: 500000.0
+  default_bouquet_price: 2500000.0
+  default_agatha_coupon_price: 15000.0
+  force_flower_price: false
+  force_bouquet_price: false
+  force_agatha_coupon_price: false
 market:
   bazaar_tax: 1.25
   ah_multiplier: 1.0
@@ -52,3 +56,14 @@ rarity:
     EPIC: 3
     LEGENDARY: 4
     MYTHIC: 5
+npc:
+  agatha_coupon_id: AGATHA_COUPON
+  item_costs:
+    SMALL_FROG_TREAT:
+      AGATHA_COUPON: 30
+    MEDIUM_FROG_TREAT:
+      AGATHA_COUPON: 40
+    LARGE_FROG_TREAT:
+      AGATHA_COUPON: 50
+    GIANT_FROG_TREAT:
+      AGATHA_COUPON: 60
