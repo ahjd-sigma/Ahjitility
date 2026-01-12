@@ -21,8 +21,8 @@ object KatBlacklistManager {
                 val type = object : TypeToken<Set<String>>() {}.type
                 blacklistedFamilies = gson.fromJson<Set<String>>(content, type).toMutableSet()
             }
-        } catch (e: Exception) {
-            // Silently fail or use proper logger
+        } catch (_: Exception) {
+            // Silently fail
         }
     }
 
@@ -36,8 +36,8 @@ object KatBlacklistManager {
                     }
                     blacklistFile.writeText(gson.toJson(blacklistedFamilies))
                 }
-            } catch (e: Exception) {
-                // Silently fail or use proper logger
+            } catch (_: Exception) {
+                // Silently fail
             }
         }.start()
     }

@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken
 import utils.KatConfig
 import java.io.File
 import java.net.URI
-import java.net.URL
 
 object KatDataLoader {
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -17,30 +16,47 @@ object KatDataLoader {
         if (!jsonFile.exists()) return fetchAndSave()
 
         return try {
-            val listType = object : TypeToken<List<KatRecipe>>() {}.type
-            val recipes: List<KatRecipe> = gson.fromJson(jsonFile.readText(), listType)
-            groupIntoFamilies(recipes)
+            val recipes: List<KatRecipe> = gson.fromJson(jsonFile.readText(), object : TypeToken<List<KatRecipe>>() {}.type)
+            val modifiedRecipes = injectMissingMaterials(recipes)
+            groupIntoFamilies(modifiedRecipes)
         } catch (e: Exception) {
-            // Log error or handle silently in production
             fetchAndSave()
         }
     }
 
+    private fun injectMissingMaterials(recipes: List<KatRecipe>): List<KatRecipe> {
+        return recipes.map { recipe ->
+            if (recipe.name.contains("Crow", ignoreCase = true)) {
+                val newMaterials = recipe.materials.toMutableMap()
+                when (recipe.baseRarity.uppercase()) {
+                    "UNCOMMON" -> newMaterials["VEILSHROOM"] = 2
+                    "RARE" -> newMaterials["DUSKBLOOM"] = 4
+                    "EPIC" -> newMaterials["DO_NOT_EAT_SHROOM"] = 8
+                }
+                recipe.copy(materials = newMaterials)
+            } else {
+                recipe
+            }
+        }
+    }
+
     private fun fetchAndSave(): List<KatFamily> = try {
-        val jsonString = URI(KatConfig.coflnetKatDataUrl).toURL().readText()
-        val listType = object : TypeToken<List<KatRecipe>>() {}.type
-        val recipes: List<KatRecipe> = gson.fromJson(jsonString, listType)
+        val jsonString = URI.create(KatConfig.coflnetKatDataUrl).toURL().readText()
+        val recipes: List<KatRecipe> = gson.fromJson(jsonString, object : TypeToken<List<KatRecipe>>() {}.type)
 
         recipes.forEach { recipe ->
             val rarityNum = rarityMap[recipe.baseRarity.uppercase()] ?: 0
-            val namePart = recipe.itemTag.removePrefix(KatConfig.petPrefix).replace(KatConfig.space, KatConfig.underscore).uppercase()
+            val namePart = recipe.itemTag.removePrefix(KatConfig.petPrefix)
+                .replace(KatConfig.space, KatConfig.underscore).uppercase()
             recipe.itemTag = "$namePart${KatConfig.itemTagSeparator}$rarityNum"
         }
 
-        if (!jsonFile.parentFile.exists()) jsonFile.parentFile.mkdirs()
-        jsonFile.writeText(gson.toJson(recipes))
+        val modifiedRecipes = injectMissingMaterials(recipes)
 
-        groupIntoFamilies(recipes)
+        if (!jsonFile.parentFile.exists()) jsonFile.parentFile.mkdirs()
+        jsonFile.writeText(gson.toJson(modifiedRecipes))
+
+        groupIntoFamilies(modifiedRecipes)
     } catch (e: Exception) {
         emptyList()
     }

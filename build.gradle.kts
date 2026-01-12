@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.sigma"
-version = "1.0-SNAPSHOT"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -26,10 +26,6 @@ dependencies {
 
 application {
     mainClass = "app.MainKt"
-    applicationDefaultJvmArgs = listOf(
-        "--add-opens", "javafx.graphics/javafx.scene=ALL-UNNAMED",
-        "--add-opens", "javafx.controls/javafx.scene.control=ALL-UNNAMED"
-    )
 }
 
 javafx {
@@ -80,7 +76,7 @@ val createPortable = tasks.register<Exec>("createPortable") {
         "--main-class", "app.MainKt",
         "--name", "Ahjitility",
         "--vendor", "Sigma",
-        "--app-version", "1.0.0",
+        "--app-version", "1.1.0",
         "--icon", project.projectDir.resolve("resources/icons/kotlin.ico").absolutePath,
         "--java-options", "--add-opens javafx.graphics/javafx.scene=ALL-UNNAMED --add-opens javafx.controls/javafx.scene.control=ALL-UNNAMED"
     )
@@ -91,68 +87,67 @@ val createPortable = tasks.register<Exec>("createPortable") {
         if (configSource.exists()) {
             configSource.copyRecursively(File(appDir, "config"), overwrite = true)
         }
-        println("Portable distribution created in: ${appDir.absolutePath}")
+        // No longer printing here, will print in final package task
     }
 }
 
-val zipPortable = tasks.register<Zip>("zipPortable") {
-    dependsOn(createPortable)
+val packageRelease = tasks.register<Zip>("packageRelease") {
+    dependsOn("shadowJar", createPortable)
     group = "distribution"
-    description = "Zips the portable distribution for sharing"
+    description = "Packages both JAR and EXE versions into a single ZIP"
 
-    from(layout.buildDirectory.dir("dist/portable/Ahjitility"))
-    archiveFileName.set("Ahjitility-Windows-Portable.zip")
-    destinationDirectory.set(layout.buildDirectory.dir("dist/ready-to-ship"))
+    val releaseDir = layout.buildDirectory.dir("release-staging").get().asFile
+    
+    // Set zip properties
+    archiveFileName.set("Ahjitility-v${project.version}.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("dist"))
 
-    doLast {
-        println("Portable ZIP created in: ${archiveFile.get().asFile.absolutePath}")
+    // Define what goes into the ZIP
+    from(layout.buildDirectory.dir("dist/portable/Ahjitility")) {
+        into("Windows-Portable-EXE")
     }
-}
+    
+    // Add Standalone JAR version
+    from(layout.buildDirectory.file("libs/Ahjitility.jar")) {
+        into("Standalone-JAR")
+    }
+    
+    // Add config and run.bat to Standalone JAR folder
+    from(project.projectDir.resolve("config")) {
+        into("Standalone-JAR/config")
+    }
 
-val packageApp = tasks.register("packageApp") {
-    dependsOn("shadowJar", zipPortable)
-    doLast {
-        val distDir = layout.buildDirectory.dir("dist").get().asFile
-        val standaloneDir = File(distDir, "standalone-jar-version")
-        val portableDir = layout.buildDirectory.dir("dist/portable/Ahjitility").get().asFile
-        val shipDir = layout.buildDirectory.dir("dist/ready-to-ship").get().asFile
-        
-        if (standaloneDir.exists()) standaloneDir.deleteRecursively()
-        standaloneDir.mkdirs()
-        
-        // Copy JAR to standalone
-        val jarFile = layout.buildDirectory.file("libs/Ahjitility.jar").get().asFile
-        jarFile.copyTo(File(standaloneDir, "Ahjitility.jar"), overwrite = true)
-        
-        // Copy config to standalone
-        val configSource = project.projectDir.resolve("config")
-        if (configSource.exists()) {
-            configSource.copyRecursively(File(standaloneDir, "config"), overwrite = true)
-        }
+    doFirst {
+        if (releaseDir.exists()) releaseDir.deleteRecursively()
+        releaseDir.mkdirs()
 
-        // Create run.bat in standalone with necessary JVM arguments for JavaFX reflection
-        val runBat = File(standaloneDir, "run.bat")
-        val jvmArgs = application.applicationDefaultJvmArgs.joinToString(" ")
-        runBat.writeText("""
+        // Generate run.bat for the Standalone JAR folder inside the zip
+        val runBatFile = File(releaseDir, "run.bat")
+        runBatFile.writeText("""
             @echo off
             echo Starting Ahjitility (Standalone JAR version)...
-            java $jvmArgs -jar Ahjitility.jar
+            java -jar Ahjitility.jar
             if %ERRORLEVEL% neq 0 (
                 echo.
                 echo [ERROR] Application crashed or failed to start.
+                echo Make sure you have Java 21+ installed.
                 pause
             )
         """.trimIndent())
-        
+    }
+
+    from(releaseDir) {
+        into("Standalone-JAR")
+    }
+
+    doLast {
         println("\n============================================================")
-        println("  BUILD SUCCESSFUL - OUTPUTS REORGANIZED")
+        println("  BUILD SUCCESSFUL - RELEASE PACKAGED")
         println("============================================================")
-        println("  1. FOR TESTING (Folder):")
-        println("     - EXE Version: ${portableDir.absolutePath}")
-        println("     - JAR Version: ${standaloneDir.absolutePath}")
-        println("")
-        println("  2. FOR SHARING (Single File):")
-        println("     - ZIP Archive: ${shipDir.absolutePath}\\Ahjitility-Windows-Portable.zip")
+        println("  Final Release ZIP: ${archiveFile.get().asFile.absolutePath}")
+        println("  Contains:")
+        println("    - /Windows-Portable-EXE (Full bundle, no Java needed)")
+        println("    - /Standalone-JAR (Small file, requires Java 21 installed)")
         println("============================================================\n")
     }
 }

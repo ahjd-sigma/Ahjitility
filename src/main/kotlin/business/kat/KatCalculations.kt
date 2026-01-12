@@ -1,11 +1,9 @@
 package business.kat
 
-import utils.PriceFetcher
-import utils.RecipeFetcher
 import utils.KatConfig
-import utils.GeneralConfig
+import utils.PriceFetcher
 import utils.PriceResult
-import kotlin.math.max
+import utils.RecipeFetcher
 
 object KatCalculations {
     val recipeFetcher = RecipeFetcher()
