@@ -30,6 +30,8 @@ abstract class BaseConfig(fileName: String) {
                 when (property.get()) {
                     is Double -> (yamlValue as? Number)?.toDouble() as T
                     is Int -> (yamlValue as? Number)?.toInt() as T
+                    is Long -> (yamlValue as? Number)?.toLong() as T
+                    is Float -> (yamlValue as? Number)?.toFloat() as T
                     is Boolean -> yamlValue as T
                     is String -> yamlValue as T
                     is List<*> -> yamlValue as T

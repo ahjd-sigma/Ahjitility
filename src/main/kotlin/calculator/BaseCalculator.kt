@@ -72,7 +72,7 @@ abstract class BaseCalculator(protected val priceFetcher: PriceFetcher) : Calcul
     protected abstract fun createControls(): Region
     protected open fun createOverlay(): Region? = null
 
-    private fun createTopBar(onBack: () -> Unit) = HBox(10.0).apply {
+    protected open fun createTopBar(onBack: () -> Unit) = HBox(10.0).apply {
         alignment = Pos.CENTER_LEFT
         padding = Insets(10.0)
         children.add(Button("← Main Menu").apply {

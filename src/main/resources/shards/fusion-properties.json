@@ -928,6 +928,7 @@
     "family": [
       "Treasure Fish"
     ],
+    "isFishingShard": true,
     "input1": "",
     "input2": "",
     "id_result": "Abyssal Lanternfish",
@@ -1018,6 +1019,7 @@
     "family": [
       "Treasure Fish"
     ],
+    "isFishingShard": true,
     "input1": "",
     "input2": "",
     "id_result": "Silentdepth",
@@ -1070,6 +1072,7 @@
     "family": [
       "Treasure Fish"
     ],
+    "isFishingShard": true,
     "input1": "",
     "input2": "",
     "id_result": "Snowfin",
@@ -1377,6 +1380,7 @@
     "family": [
       "Treasure Fish"
     ],
+    "isFishingShard": true,
     "input1": "",
     "input2": "",
     "id_result": "",
@@ -2084,6 +2088,7 @@
     "rarity": "Legendary",
     "category": "Water",
     "family": [],
+    "isFishingShard": true,
     "input1": "",
     "input2": "",
     "id_result": "Lord Jawbus",

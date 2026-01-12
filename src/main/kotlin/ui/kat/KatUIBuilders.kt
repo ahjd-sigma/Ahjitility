@@ -14,6 +14,9 @@ import javafx.scene.layout.Region
 import utils.KatUIConfig
 import utils.ConfigEvents
 import utils.GeneralConfig
+import utils.Styles
+import utils.label
+import utils.separator
 
 fun label(
     text: String, 
@@ -86,11 +89,13 @@ fun priceLabel(
     value: Double?, 
     format: String = KatUIConfig.formatPrice, 
     excluded: Boolean = false,
-    color: String = KatUIConfig.labelColorSecondary
+    color: String = KatUIConfig.labelColorSecondary,
+    bold: Boolean = false
 ): Label = label(
     text = if (excluded || value == null) "N/A" else String.format(format, value),
     color = color,
-    size = KatUIConfig.fontSizeSmall
+    size = KatUIConfig.fontSizeSmall,
+    bold = bold
 )
 
 fun valueLabel(
@@ -98,11 +103,13 @@ fun valueLabel(
     format: String = KatUIConfig.formatPrice, 
     excluded: Boolean = false,
     color: String = KatUIConfig.labelColorSecondary,
-    size: Double = KatUIConfig.fontSizeSmall
+    size: Double = KatUIConfig.fontSizeSmall,
+    bold: Boolean = false
 ): Label = label(
     text = if (excluded || value == null) "N/A" else String.format(format, value),
     color = color,
-    size = size
+    size = size,
+    bold = bold
 )
 
 fun comboBox(
@@ -113,6 +120,7 @@ fun comboBox(
 ): ComboBox<String> = ComboBox<String>().apply {
     this.items.addAll(items)
     value = defaultValue
+    style = utils.Styles.combo
     setOnAction { onChange() }
     prefWidth = width
 }
@@ -124,13 +132,7 @@ fun textField(
     onChange: () -> Unit = {}
 ): TextField = TextField(text).apply {
     if (prompt.isNotEmpty()) promptText = prompt
-    style = buildString {
-        append("-fx-background-color: ${KatUIConfig.colorFieldBg};")
-        append(" -fx-text-fill: white;")
-        if (prompt.isNotEmpty()) append(" -fx-prompt-text-fill: ${KatUIConfig.labelColorMuted};")
-        append(" -fx-font-size: ${KatUIConfig.fontSizeNormal}px;")
-        append(" -fx-background-radius: ${KatUIConfig.borderRadiusSmall};")
-    }
+    style = utils.Styles.field
     textProperty().addListener { _, _, _ -> onChange() }
     prefWidth = width
 }
@@ -140,14 +142,7 @@ fun button(
     onClick: () -> Unit = {},
     width: Double? = null
 ): Button = Button(text).apply {
-    style = buildString {
-        append("-fx-background-color: ${KatUIConfig.colorButtonBg};")
-        append(" -fx-text-fill: white;")
-        append(" -fx-cursor: hand;")
-        append(" -fx-font-size: ${KatUIConfig.fontSizeSmall + 3}px;")
-        append(" -fx-padding: ${KatUIConfig.paddingSmall} ${KatUIConfig.paddingMedium};")
-        append(" -fx-background-radius: ${KatUIConfig.borderRadiusSmall};")
-    }
+    style = utils.Styles.button
     setOnAction { onClick() }
     if (width != null) prefWidth = width
 }

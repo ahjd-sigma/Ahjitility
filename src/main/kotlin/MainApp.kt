@@ -49,9 +49,14 @@ class MainApp : Application() {
                     alignment = Pos.CENTER
                     children.addAll(
                         Label("Ahjitility").apply {
-                            style = "-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;"
+                            style = """
+                                -fx-text-fill: aqua; 
+                                -fx-font-size: 32px; 
+                                -fx-font-weight: bold;
+                                -fx-effect: dropshadow(three-pass-box, rgba(0,255,255,0.8), 15, 0, 0, 0);
+                            """.trimIndent()
                         },
-                        Label("Skyblock Utility Suite").apply {
+                        Label("Skyblock Utility Calculators").apply {
                             style = "-fx-text-fill: #888888; -fx-font-size: 14px;"
                         }
                     )
@@ -76,7 +81,7 @@ class MainApp : Application() {
                     VBox.setVgrow(this, Priority.ALWAYS)
                 },
 
-                Label("v1.0.0").apply {
+                Label("v1.1").apply {
                     style = "-fx-text-fill: #555555; -fx-font-size: 12px;"
                 }
             )

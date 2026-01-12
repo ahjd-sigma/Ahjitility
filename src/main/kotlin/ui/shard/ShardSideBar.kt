@@ -17,7 +17,18 @@ class ShardSidebar {
     private val rateField = TextField().apply {
         style = Styles.field
     }
+    private val chestPriceField = TextField().apply {
+        style = Styles.field
+    }
+    private val baitCountField = TextField().apply {
+        style = Styles.field
+    }
+    private val baitPriceLabel = Label().apply {
+        style = "-fx-text-fill: #888888; -fx-font-size: 11px;"
+    }
     private var onSave: ((Double) -> Unit)? = null
+    private var onSaveChestPrice: ((Double) -> Unit)? = null
+    private var onSaveBaitCount: ((Double) -> Unit)? = null
 
     private val contentBox = VBox(15.0).apply {
         padding = Insets(20.0)
@@ -30,10 +41,10 @@ class ShardSidebar {
     }
     
     init {
-         show(null) {}
+         show(null, {}, {}, {})
     }
 
-    fun show(shard: ShardInfo?, onSaveCallback: (Double) -> Unit) {
+    fun show(shard: ShardInfo?, onSaveCallback: (Double) -> Unit, onSaveChestPriceCallback: (Double) -> Unit, onSaveBaitCountCallback: (Double) -> Unit) {
         contentBox.children.clear()
         
         if (shard == null) {
@@ -47,7 +58,14 @@ class ShardSidebar {
 
         nameLabel.text = "${shard.displayName} (${shard.shardId})"
         rateField.text = shard.ratePerHour.toString()
+        chestPriceField.text = shard.chestPrice.toString()
+        baitCountField.text = shard.baitCount.toString()
+        if (shard.isFishingShard) {
+            baitPriceLabel.text = "Current Bait Price: ${String.format("%,.0f", shard.baitPrice)} coins"
+        }
         onSave = onSaveCallback
+        onSaveChestPrice = onSaveChestPriceCallback
+        onSaveBaitCount = onSaveBaitCountCallback
         
         contentBox.children.addAll(
             Label("Modify Rate").apply {
@@ -58,7 +76,29 @@ class ShardSidebar {
             VBox(8.0,
                 Label("Rate per hour:").apply { style = "-fx-text-fill: ${Styles.TEXT_COLOR};" },
                 rateField
-            ),
+            )
+        )
+
+        if (shard.isDungeonShard()) {
+            contentBox.children.add(
+                VBox(8.0,
+                    Label("Chest Price:").apply { style = "-fx-text-fill: ${Styles.TEXT_COLOR};" },
+                    chestPriceField
+                )
+            )
+        }
+
+        if (shard.isFishingShard) {
+            contentBox.children.add(
+                VBox(8.0,
+                    Label("Bait per 5 mins:").apply { style = "-fx-text-fill: ${Styles.TEXT_COLOR};" },
+                    baitCountField,
+                    baitPriceLabel
+                )
+            )
+        }
+
+        contentBox.children.add(
             VBox(10.0).apply {
                 padding = Insets(10.0, 0.0, 0.0, 0.0)
                 children.addAll(
@@ -85,12 +125,26 @@ class ShardSidebar {
     }
 
     fun hide() {
-        show(null) {}
+        show(null, {}, {}, {})
     }
 
     private fun save() {
-        rateField.text.toDoubleOrNull()?.let { rate ->
+        val rate = rateField.text.toDoubleOrNull()
+        val chestPrice = chestPriceField.text.toDoubleOrNull()
+        val baitCount = baitCountField.text.toDoubleOrNull()
+
+        if (rate != null) {
             onSave?.invoke(rate)
-        } ?: println("Invalid rate")
+        }
+        if (chestPrice != null) {
+            onSaveChestPrice?.invoke(chestPrice)
+        }
+        if (baitCount != null) {
+            onSaveBaitCount?.invoke(baitCount)
+        }
+        
+        if (rate == null && chestPrice == null && baitCount == null) {
+            println("Invalid input")
+        }
     }
 }

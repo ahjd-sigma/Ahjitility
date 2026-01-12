@@ -132,8 +132,10 @@ class ForgeCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher)
             if (item.profitPerHour != 0.0) {
                 val color = if (item.profitPerHour >= 0) "green" else "red"
                 val sign = if (item.profitPerHour >= 0) "+" else ""
-                text("[$sign${String.format("%,.0f", item.profitPerHour)}/hr]", color, bold = true)
-            } else text("[N/A/hr]", "#666666")
+                text("[$sign${String.format("%,.0f", item.profitPerHour)}/hr] ", color, bold = true)
+            } else text("[N/A/hr] ", "#666666"),
+
+            text("(${formatDuration(item.effectiveDuration)})", "cyan", 11.0)
         ).apply { padding = Insets(8.0, 10.0, 8.0, 10.0) }
 
         children.addAll(textFlow, Separator().apply { style = "-fx-background-color: #333333; -fx-opacity: 0.3;" })

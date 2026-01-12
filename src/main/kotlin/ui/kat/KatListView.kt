@@ -70,10 +70,10 @@ class KatListView(private val onToggleExclude: (String) -> Unit) {
             HBox().apply {
                 alignment = Pos.CENTER_LEFT
                 children.addAll(
-                    Label(if (result.family.isFullFamily) "Full Family" else "Partial").apply {
+                    Label(if (result.family.isFullFamily) "Full Family " else "Partial Family ").apply {
                         style = "-fx-text-fill: ${KatUIConfig.labelColorSecondary}; -fx-font-size: ${KatUIConfig.fontSizeLarge}px;"
                     },
-                    Label(result.family.name).apply {
+                    Label(result.family.name.replace("_", " ")).apply {
                         style = "-fx-text-fill: white; -fx-font-size: ${KatUIConfig.fontSizeExtraLarge}px; -fx-font-weight: bold;"
                     },
                     spacer(),
@@ -121,10 +121,9 @@ class KatListView(private val onToggleExclude: (String) -> Unit) {
                 format = "%.1f",
                 excluded = isExcluded,
                 color = KatUIConfig.accentBlue,
-                size = KatUIConfig.fontSizeExtraSmall + 1
-            ).apply {
-                style = "-fx-font-weight: bold;"
-            }
+                size = KatUIConfig.fontSizeExtraSmall + 1,
+                bold = true
+            )
         )
     }
 
@@ -220,8 +219,8 @@ private fun createCraftContent(card: KatUpgradeCard, isExcluded: Boolean) =
         children.add(vbox(KatUIConfig.spacingSmall / 1.5) {
             children.addAll(
                 createSummaryRow("Total Craft Cost:", card.totalCost, KatUIConfig.formatPrice, KatUIConfig.costRed, isExcluded),
-                createSummaryRow("Expected Profit:", card.expectedProfit, KatUIConfig.formatPrice, if (!isExcluded && card.expectedProfit > 0) KatUIConfig.accentGreen else KatUIConfig.accentRed, isExcluded, true),
-                createSummaryRow("Margin:", card.profitMargin, KatUIConfig.formatPercent, if (!isExcluded && card.profitMargin > 0) KatUIConfig.accentGreen else KatUIConfig.accentRed, isExcluded, true)
+                createSummaryRow("Expected Profit:", card.expectedProfit, KatUIConfig.formatPrice, if (!isExcluded && card.expectedProfit > 0) KatUIConfig.accentGreen else if (!isExcluded && card.expectedProfit < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true),
+                createSummaryRow("Margin:", card.profitMargin, KatUIConfig.formatPercent, if (!isExcluded && card.profitMargin > 0) KatUIConfig.accentGreen else if (!isExcluded && card.profitMargin < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true)
             )
         })
     }
@@ -232,14 +231,13 @@ private fun createCraftContent(card: KatUpgradeCard, isExcluded: Boolean) =
             Label(label).apply { style = KatUIConfig.styleLabelSecondary },
             spacer(),
             valueLabel(
-                value = value,
-                format = format,
-                excluded = isExcluded,
-                color = color,
-                size = if (isBold) KatUIConfig.fontSizeNormal else KatUIConfig.fontSizeSmall
-            ).apply {
-                style = if (isBold) "-fx-font-weight: bold;" else ""
-            }
+            value = value,
+            format = format,
+            excluded = isExcluded,
+            color = color,
+            size = if (isBold) KatUIConfig.fontSizeNormal else KatUIConfig.fontSizeSmall,
+            bold = isBold
+        )
         )
     }
 
@@ -329,9 +327,7 @@ private fun createRaritySection(rarity: String, price: Double?, source: PriceSou
                 excluded = isExcluded,
                 color = KatUIConfig.labelColorSecondary,
                 size = KatUIConfig.fontSizeExtraSmall
-            ).apply {
-                style = KatUIConfig.styleLabelSmall
-            }
+            )
         )
     }
 
@@ -353,18 +349,16 @@ private fun createRaritySection(rarity: String, price: Double?, source: PriceSou
                 excluded = isExcluded,
                 color = KatUIConfig.labelColorSecondary,
                 size = KatUIConfig.fontSizeNormal
-            ).apply {
-                style = KatUIConfig.styleLabelNormal
-            }
+            )
         )
     }
 
     private fun createProfitSummary(card: KatUpgradeCard, isExcluded: Boolean) = VBox(KatUIConfig.spacingSmall / 1.5).apply {
         children.addAll(
             createSummaryRow("Total Cost:", card.totalCost, KatUIConfig.formatPrice, KatUIConfig.costRed, isExcluded),
-            createSummaryRow("Expected Profit:", card.expectedProfit, KatUIConfig.formatPrice, if (!isExcluded && card.expectedProfit > 0) KatUIConfig.accentGreen else KatUIConfig.accentRed, isExcluded, true),
-            createSummaryRow("Margin:", card.profitMargin, KatUIConfig.formatPercent, if (!isExcluded && card.profitMargin > 0) KatUIConfig.accentGreen else KatUIConfig.accentRed, isExcluded, true),
-            createSummaryRow("Market Profit/hr:", card.expectedHourlyMarketProfit ?: 0.0, KatUIConfig.formatPrice, if (!isExcluded && (card.expectedHourlyMarketProfit ?: 0.0) > 0) KatUIConfig.accentBlue else KatUIConfig.accentRed, isExcluded || card.expectedHourlyMarketProfit == null, true)
+            createSummaryRow("Expected Profit:", card.expectedProfit, KatUIConfig.formatPrice, if (!isExcluded && card.expectedProfit > 0) KatUIConfig.accentGreen else if (!isExcluded && card.expectedProfit < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true),
+            createSummaryRow("Margin:", card.profitMargin, KatUIConfig.formatPercent, if (!isExcluded && card.profitMargin > 0) KatUIConfig.accentGreen else if (!isExcluded && card.profitMargin < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true),
+            createSummaryRow("Market Profit/hr:", card.expectedHourlyMarketProfit ?: 0.0, KatUIConfig.formatPrice, if (!isExcluded && (card.expectedHourlyMarketProfit ?: 0.0) > 0) KatUIConfig.accentGreen else if (!isExcluded && (card.expectedHourlyMarketProfit ?: 0.0) < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded || card.expectedHourlyMarketProfit == null, true)
         )
     }
 }

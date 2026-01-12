@@ -17,7 +17,7 @@ object GeneralConfig : BaseConfig("general.yaml") {
     // Global Colors
     var colorDarkBg: String = "#2b2b2b"
     var colorDarkerBg: String = "#1e1e1e"
-    var colorTextPrimary: String = "#cccccc"
+    var colorTextPrimary: String = "#ffffff"
     var colorAccentBlue: String = "#4a90e2"
     var colorAccentOrange: String = "#FF9800"
     var colorAccentRed: String = "#e74c3c"
@@ -77,7 +77,7 @@ object GeneralConfig : BaseConfig("general.yaml") {
 
         colorDarkBg = "#2b2b2b"
         colorDarkerBg = "#1e1e1e"
-        colorTextPrimary = "#cccccc"
+        colorTextPrimary = "#ffffff"
         colorAccentBlue = "#4a90e2"
         colorAccentOrange = "#FF9800"
         colorAccentRed = "#e74c3c"

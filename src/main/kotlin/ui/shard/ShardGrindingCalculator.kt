@@ -26,6 +26,8 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
 
     private var allShards = emptyList<ShardInfo>()
     private var currentRates = mutableMapOf<String, Double>()
+    private var currentChestPrices = mutableMapOf<String, Double>()
+    private var currentBaitCounts = mutableMapOf<String, Double>()
 
     override fun createContent() = SplitPane(
         listView.listView,
@@ -47,9 +49,13 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
 
     init {
         listView.onSelectionChanged { shard ->
-            sidebar.show(shard) { newRate -> 
+            sidebar.show(shard, { newRate -> 
                 shard?.let { saveRate(it.shardId, newRate) }
-            }
+            }, { newChestPrice ->
+                shard?.let { saveChestPrice(it.displayName, newChestPrice) }
+            }, { newBaitCount ->
+                shard?.let { saveBaitCount(it.displayName, newBaitCount) }
+            })
         }
         refreshData()
     }
@@ -58,25 +64,78 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
         Platform.runLater { loading.set(true) }
         scope.launch {
             try {
+                println("[DEBUG] Shard: Starting refreshData")
                 val rates = ShardDataLoader.loadRates()
+                println("[DEBUG] Shard: Loaded ${rates.size} rates. Keys: ${rates.keys}")
                 currentRates = rates.toMutableMap()
-                priceFetcher.fetchAllPrices()
+                
+                val chestPrices = ShardDataLoader.loadChestPrices()
+                println("[DEBUG] Shard: Loaded ${chestPrices.size} chest prices")
+                currentChestPrices = chestPrices.toMutableMap()
+
+                val baitCounts = ShardDataLoader.loadBaitCounts()
+                println("[DEBUG] Shard: Loaded ${baitCounts.size} bait counts")
+                currentBaitCounts = baitCounts.toMutableMap()
+
+                println("[DEBUG] Shard: Fetching prices...")
+                try {
+                    withTimeout(15000) { // 15s timeout
+                        priceFetcher.fetchAllPrices()
+                    }
+                } catch (e: Exception) {
+                    println("[ERROR] Shard: Price fetch failed or timed out: ${e.message}")
+                }
 
                 val properties = ShardDataLoader.loadProperties()
+                println("[DEBUG] Shard: Loaded ${properties.size} properties")
+                
                 val priceIds = ShardCalculations.getPriceIds(rates, properties)
+                println("[DEBUG] Shard: Resolved ${priceIds.size} price IDs")
+                
                 val isInstant = controls.isInstantSell
+                println("[DEBUG] Shard: Fetching individual prices (isInstant=$isInstant)...")
                 val prices = priceIds.associate { (shardId, itemId) ->
-                    shardId to priceFetcher.getSellPrice(itemId, isInstant).price
+                    try {
+                        val price = priceFetcher.getSellPrice(itemId, isInstant).price
+                        if (price == 0.0) {
+                            // println("[INFO] Shard: Price is 0.0 for $shardId ($itemId)")
+                        }
+                        shardId to price
+                    } catch (e: Exception) {
+                        println("[ERROR] Shard: Failed to get price for $shardId ($itemId): ${e.message}")
+                        shardId to 0.0
+                    }
+                }
+                println("[DEBUG] Shard: Fetched ${prices.size} prices")
+
+                val baitPrice = try {
+                    priceFetcher.getBuyPrice("WOODEN_BAIT", isInstant).price
+                } catch (e: Exception) {
+                    println("[ERROR] Shard: Failed to get bait price: ${e.message}")
+                    0.0
                 }
 
-                allShards = ShardCalculations.combineData(rates, properties, prices, controls.sellMode, controls.hunterFortune)
+                println("[DEBUG] Shard: Combining data...")
+                allShards = ShardCalculations.combineData(
+                    rates, properties, prices, controls.sellMode, controls.hunterFortune, 
+                    currentChestPrices, currentBaitCounts, baitPrice
+                )
                 
+                println("[DEBUG] Shard: Updating UI with ${allShards.size} shards")
                 Platform.runLater {
-                    updateUI()
-                    loading.set(false)
+                    try {
+                        updateUI()
+                        loading.set(false)
+                        println("[DEBUG] Shard: UI Update complete")
+                    } catch (e: Exception) {
+                        println("[ERROR] Shard UI update failed: ${e.message}")
+                        e.printStackTrace()
+                        loading.set(false)
+                    }
                 }
             } catch (e: Exception) {
-                println("ERROR: Shard refresh failed: ${e.message}")
+                println("[ERROR] Shard refresh failed: ${e.message}")
+                e.printStackTrace()
                 Platform.runLater { loading.set(false) }
             }
         }
@@ -118,39 +177,86 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
         sidebar.hide()
     }
 
-    private fun createShardCell(shard: ShardInfo) = HBox(10.0).apply {
-        padding = Insets(8.0, 10.0, 8.0, 10.0)
-        alignment = Pos.CENTER_LEFT
+    private fun saveChestPrice(displayName: String, newChestPrice: Double) {
+        currentChestPrices[displayName] = newChestPrice
+        // Save in background
+        scope.launch {
+            ShardDataLoader.saveChestPrices(currentChestPrices)
+        }
+        
+        // Update local state immediately
+        allShards = allShards.map {
+            if (it.displayName == displayName) it.copy(chestPrice = newChestPrice) else it
+        }
+        updateUI()
+        sidebar.hide()
+    }
 
-        val rarityColor = getRarityColor(shard.rarity)
-        val sellSuffix = if (shard.sellMode == "Instant Sell") "(SI)" else "(SO)"
+    private fun saveBaitCount(displayName: String, newBaitCount: Double) {
+        currentBaitCounts[displayName] = newBaitCount
+        // Save in background
+        scope.launch {
+            ShardDataLoader.saveBaitCounts(currentBaitCounts)
+        }
+        
+        // Update local state immediately
+        allShards = allShards.map {
+            if (it.displayName == displayName) it.copy(baitCount = newBaitCount) else it
+        }
+        updateUI()
+        sidebar.hide()
+    }
 
-        children.addAll(
-            ImageView(Image(javaClass.getResourceAsStream("/icons/shardIcons/${shard.shardId}.png"))).apply {
-                fitWidth = ShardUIConfig.iconSize
-                fitHeight = ShardUIConfig.iconSize
-            },
-            VBox(4.0).apply {
-                children.addAll(
-                    Label(shard.displayName).apply { style = "-fx-text-fill: $rarityColor; -fx-font-weight: bold; -fx-font-size: 14px;" },
-                    Label("${shard.rarity} Shard").apply { style = "-fx-text-fill: #888888; -fx-font-size: 11px;" }
-                )
-            },
-            Region().apply { HBox.setHgrow(this, Priority.ALWAYS) },
-            VBox(4.0).apply {
-                alignment = Pos.CENTER_RIGHT
-                children.addAll(
-                    Label(String.format("%,.0f/hr", shard.profitPerHour)).apply { style = "-fx-text-fill: #ffaa00; -fx-font-weight: bold; -fx-font-size: 14px;" },
-                    HBox(4.0).apply {
-                        alignment = Pos.CENTER_RIGHT
-                        children.addAll(
-                            Label(String.format("%,.2f shards/hr", shard.effectiveRatePerHour)).apply { style = "-fx-text-fill: #aaaaaa; -fx-font-size: 11px;" },
-                            Label("${String.format("%,.0f", shard.price)} coins $sellSuffix").apply { style = "-fx-text-fill: #888888; -fx-font-size: 11px;" }
-                        )
-                    }
-                )
+    private fun createShardCell(shard: ShardInfo): Node = try {
+        HBox(10.0).apply {
+            padding = Insets(8.0, 10.0, 8.0, 10.0)
+            alignment = Pos.CENTER_LEFT
+
+            val rarityColor = getRarityColor(shard.rarity)
+            val sellSuffix = if (shard.sellMode == "Instant Sell") "(SI)" else "(SO)"
+
+            val iconStream = javaClass.getResourceAsStream("/icons/shardIcons/${shard.shardId}.png")
+            val imageView = if (iconStream != null) {
+                ImageView(Image(iconStream)).apply {
+                    fitWidth = ShardUIConfig.iconSize
+                    fitHeight = ShardUIConfig.iconSize
+                }
+            } else {
+                // Fallback for missing icon
+                Region().apply {
+                    minWidth = ShardUIConfig.iconSize
+                    minHeight = ShardUIConfig.iconSize
+                    style = "-fx-background-color: #333;"
+                }
             }
-        )
+
+            children.addAll(
+                imageView,
+                VBox(4.0).apply {
+                    children.addAll(
+                        Label(shard.displayName).apply { style = "-fx-text-fill: $rarityColor; -fx-font-weight: bold; -fx-font-size: 14px;" },
+                        Label("${shard.rarity} Shard").apply { style = "-fx-text-fill: #888888; -fx-font-size: 11px;" }
+                    )
+                },
+                Region().apply { HBox.setHgrow(this, Priority.ALWAYS) },
+                VBox(4.0).apply {
+                    alignment = Pos.CENTER_RIGHT
+                    children.addAll(
+                        Label(String.format("%,.0f/hr", shard.profitPerHour)).apply { style = "-fx-text-fill: #ffaa00; -fx-font-weight: bold; -fx-font-size: 14px;" },
+                        HBox(4.0).apply {
+                            alignment = Pos.CENTER_RIGHT
+                            children.addAll(
+                                Label(String.format("%,.2f shards/hr", shard.effectiveRatePerHour)).apply { style = "-fx-text-fill: #aaaaaa; -fx-font-size: 11px;" },
+                                Label("${String.format("%,.0f", shard.price)} coins $sellSuffix").apply { style = "-fx-text-fill: #888888; -fx-font-size: 11px;" }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+    } catch (e: Exception) {
+        println("[ERROR] Failed to create shard cell for ${shard.shardId}: ${e.message}")
+        Label("Error loading ${shard.displayName}")
     }
 
     private fun getRarityColor(rarity: String) = when (rarity.uppercase()) {

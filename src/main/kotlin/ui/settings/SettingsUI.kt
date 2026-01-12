@@ -144,7 +144,22 @@ class SettingsUI(private val onBack: () -> Unit) {
         children.addAll(
             sectionHeader("Time Reduction"),
             booleanSetting("Enable Time Reduction", KatConfig::enableTimeReduction),
+            doubleSetting("Target Duration (Hours)", KatConfig::targetMaxDurationHours),
+            intSetting("Max Flowers", KatConfig::maxFlowers),
+            intSetting("Max Bouquets", KatConfig::maxBouquets),
             
+            sectionHeader("Kat Flower Pricing"),
+            booleanSetting("Force Fixed Price", KatConfig::forceFlowerPrice),
+            doubleSetting("Flower Price", KatConfig::defaultFlowerPrice),
+            
+            sectionHeader("Kat Bouquet Pricing"),
+            booleanSetting("Force Fixed Price", KatConfig::forceBouquetPrice),
+            doubleSetting("Bouquet Price", KatConfig::defaultBouquetPrice),
+
+            sectionHeader("Agatha Coupon Pricing"),
+            booleanSetting("Force Fixed Price", KatConfig::forceAgathaCouponPrice),
+            doubleSetting("Coupon Price", KatConfig::defaultAgathaCouponPrice),
+
             sectionHeader("Market"),
             doubleSetting("Bazaar Tax", KatConfig::bazaarTax),
             doubleSetting("AH Multiplier", KatConfig::ahMultiplier),
@@ -232,7 +247,7 @@ class SettingsUI(private val onBack: () -> Unit) {
         alignment = Pos.CENTER_LEFT
         children.addAll(
             Label(label).apply { 
-                style = "-fx-text-fill: #cccccc; -fx-font-size: 14px;"
+                style = "-fx-text-fill: ${GeneralConfig.colorTextPrimary}; -fx-font-size: 14px;"
                 minWidth = 200.0
             },
             control

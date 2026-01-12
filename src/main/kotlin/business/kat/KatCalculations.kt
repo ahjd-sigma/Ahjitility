@@ -29,7 +29,8 @@ object KatCalculations {
     }
 
     private fun calculateTaxedPrice(id: String, priceFetcher: PriceFetcher, bazaarTax: Double, ahMultiplier: Double, isBuy: Boolean = false): Pair<Double, PriceResult> {
-        val priceResult = if (isBuy) priceFetcher.getBuyPrice(id, true) else priceFetcher.getSellPrice(id, false)
+        val mappedId = getMappedId(id)
+        val priceResult = if (isBuy) priceFetcher.getBuyPrice(mappedId, true) else priceFetcher.getSellPrice(mappedId, false)
         val rawPrice = priceResult.price
         val taxRate = if (priceResult.isBazaar) bazaarTax else calculateAhTax(rawPrice, ahMultiplier)
         return Pair(rawPrice * (1.0 - taxRate / 100.0), priceResult)
@@ -52,11 +53,19 @@ object KatCalculations {
     }
 
     private fun getReductionPrices(priceFetcher: PriceFetcher, isBazaarInstant: Boolean): Pair<Double, Double> {
-        var flowerPrice = priceFetcher.getBuyPrice(KatConfig.katFlowerId, isBazaarInstant).price
-        if (flowerPrice <= 0) flowerPrice = KatConfig.defaultFlowerPrice
-        
-        var bouquetPrice = priceFetcher.getBuyPrice(KatConfig.katBouquetId, isBazaarInstant).price
-        if (bouquetPrice <= 0) bouquetPrice = KatConfig.defaultBouquetPrice
+        val flowerPrice = if (KatConfig.forceFlowerPrice) {
+            KatConfig.defaultFlowerPrice
+        } else {
+            val fetched = priceFetcher.getBuyPrice(KatConfig.katFlowerId, isBazaarInstant).price
+            if (fetched <= 0) 0.0 else fetched
+        }
+
+        val bouquetPrice = if (KatConfig.forceBouquetPrice) {
+            KatConfig.defaultBouquetPrice
+        } else {
+            val fetched = priceFetcher.getBuyPrice(KatConfig.katBouquetId, isBazaarInstant).price
+            if (fetched <= 0) 0.0 else fetched
+        }
         
         return Pair(flowerPrice, bouquetPrice)
     }

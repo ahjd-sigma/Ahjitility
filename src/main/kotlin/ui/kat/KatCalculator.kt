@@ -2,10 +2,7 @@ package ui.kat
 
 import calculator.BaseCalculator
 import business.kat.*
-import utils.PriceFetcher
-import utils.KatConfig
-import utils.KatUIConfig
-import utils.GeneralConfig
+import utils.*
 import javafx.scene.layout.VBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.Region
@@ -13,7 +10,6 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.application.Platform
 import kotlinx.coroutines.*
-import utils.textField
 
 class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     private val listView = KatListView { familyName ->
@@ -40,7 +36,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
 
     // Sorting and filtering controls
     private val sortByComboBox = comboBox(
-        items = listOf("Profit Margin (High to Low)", "Profit Margin (Low to High)", "Profit Amount", "Market Profit/hr", "All Cards"),
+        items = listOf("Profit Margin (High to Low)", "Profit Margin (Low to High)", "Profit Amount", "Market Profit/hr", "Sales/hr", "All Cards"),
         defaultValue = "Profit Margin (High to Low)",
         width = KatUIConfig.sortByWidth,
         onChange = { applySortingAndFiltering() }
@@ -57,19 +53,19 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         items = listOf("Instant Buy", "Buy Order"),
         defaultValue = if (KatConfig.defaultBazaarInstant) "Instant Buy" else "Buy Order",
         width = KatUIConfig.buyModeWidth,
-        onChange = { refreshData() }
+        onChange = { recalculateResults() }
     )
 
     private val bazaarTaxField = textField(
         text = KatConfig.bazaarTax.toString(),
         width = KatUIConfig.taxFieldWidth,
-        onChange = { refreshData() }
+        onChange = { recalculateResults() }
     )
 
     private val ahTaxMultiplierField = textField(
         text = KatConfig.ahMultiplier.toString(),
         width = KatUIConfig.taxFieldWidth,
-        onChange = { refreshData() }
+        onChange = { recalculateResults() }
     )
 
     private val isBazaarInstant get() = buyModeComboBox.value == "Instant Buy"
@@ -107,42 +103,51 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         styleClass.add("edge-to-edge") 
     }
 
-    override fun createControls() = VBox(KatUIConfig.mainSpacing).apply {
-        padding = Insets(KatUIConfig.mainPadding)
-        style = "-fx-background-color: ${GeneralConfig.colorDarkBg}; -fx-border-color: ${GeneralConfig.colorDarkerBg}; -fx-border-width: 0 0 1 0;"
-
+    override fun createTopBar(onBack: () -> Unit) = super.createTopBar(onBack).apply {
         children.addAll(
-            // Title
-            titleRow(
-                title = "Kat Calculator",
-                rightContent = javafx.scene.layout.HBox(10.0).apply {
-                    children.addAll(refreshButton, refreshCraftsButton)
-                }
-            ),
-
-            // Sorting and search controls
-            controlRow(
-                controls = arrayOf(
-                    "Sort" to sortByComboBox,
-                    "Rarity" to rarityFilterComboBox,
-                    "Buy Mode" to buyModeComboBox,
-                    "BZ %" to bazaarTaxField,
-                    "AH x" to ahTaxMultiplierField,
-                    "" to spacer(),  // Empty label for spacer
-                    "Search" to searchField
-                )
+            separator(),
+            label(
+                text = "Kat Calculator",
+                color = KatUIConfig.labelColorPrimary,
+                size = KatUIConfig.fontSizeTitle,
+                bold = true
             )
         )
-        
-        // Start data refresh after UI is created
-        Platform.runLater {
-            refreshData(force = true)
-            startProgressPolling()
-        }
     }
 
+    override fun createControls() = javafx.scene.layout.HBox(10.0).apply {
+        padding = Insets(KatUIConfig.mainPadding)
+        alignment = Pos.CENTER_LEFT
+        style = "-fx-background-color: ${GeneralConfig.colorDarkBg}; -fx-border-color: ${GeneralConfig.colorDarkerBg}; -fx-border-width: 0 0 1 0;"
+
+        searchField.prefWidth = 350.0 // Expanded search field
+
+        children.addAll(
+            "Search:".label(Styles.label),
+            searchField,
+            separator(),
+            "Sort:".label(Styles.label), sortByComboBox,
+            "Rarity:".label(Styles.label), rarityFilterComboBox,
+            "Buy:".label(Styles.label), buyModeComboBox,
+            "BZ %:".label(Styles.label), bazaarTaxField,
+            "AH x:".label(Styles.label), ahTaxMultiplierField,
+            
+            // Center: Spacer to push buttons to the right
+            spacer(),
+
+            // Right Side: Action Buttons
+            refreshButton,
+             refreshCraftsButton
+         )
+
+         // Start data refresh after UI is created
+         Platform.runLater {
+             refreshData(force = true)
+             startProgressPolling()
+         }
+     }
+
     override fun createOverlay() = StackPane().apply {
-        println("[DEBUG] KatCalculator: Creating overlay StackPane (Centered and shifted up)")
         isMouseTransparent = true
         maxWidth = 300.0
         maxHeight = Region.USE_COMPUTED_SIZE
@@ -217,6 +222,26 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         return KatCalculations.getMappedId("$baseName;$rarityNum")
     }
 
+    private fun recalculateResults() {
+        if (rawResults.isEmpty()) return
+        
+        scope.launch {
+            rawResults = rawResults.map { familyResult ->
+                val updatedCards = familyResult.family.recipes.flatMap { recipe ->
+                    KatCalculations.calculateUpgradeCard(
+                        recipe, familyResult.family, priceFetcher, timeReducer, isBazaarInstant,
+                        bazaarTax, ahMultiplier
+                    )
+                }.map { card -> 
+                    // Preserve sales data if already fetched
+                    fetchSalesData(card)
+                }
+                familyResult.copy(upgradeCards = updatedCards)
+            }
+            triggerUIUpdate()
+        }
+    }
+
     private fun refreshData(force: Boolean = false) {
         if (force) {
             Platform.runLater { loading.set(true) }
@@ -252,12 +277,10 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                 // Sequential Fetching: 1. Recipes (handled by calculateUpgradeCard calls)
                 // 2. Wait for Recipes to finish, then start Sales
                 if (force) {
-                    println("[DEBUG] KatCalculator: Initial recipe trigger finished, waiting for background recipe tasks...")
                     while (KatCalculations.recipeFetcher.hasPendingRequests()) {
                         delay(500)
                     }
                     isRecipeFetching = false
-                    println("[DEBUG] KatCalculator: All recipes fetched. Starting sales fetch...")
                     startSalesFetch()
                 }
             } catch (e: Exception) {
@@ -320,7 +343,6 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
             Platform.runLater {
                 salesProgressBar.updateProgress(0.0, "Fetching Sales Data...")
                 salesProgressBar.isVisible = true
-                println("[DEBUG] KatCalculator: Showing salesProgressBar")
             }
 
             for ((index, baseId) in baseIdsToFetch.withIndex()) {
@@ -332,7 +354,6 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                 
                 // Update progress
                 val progress = (index + 1).toDouble() / baseIdsToFetch.size
-                println("[DEBUG] KatCalculator: Sales Progress: ${String.format("%.2f", progress)} ($index/${baseIdsToFetch.size})")
                 
                 Platform.runLater { 
                     salesProgressBar.updateProgress(progress, "Updating Sales... ${String.format("%.0f%%", progress * 100)}")
@@ -342,11 +363,9 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                 delay(200) // Default sales fetch idle delay
             }
 
-            println("[DEBUG] KatCalculator: Sales fetch complete, waiting to hide salesProgressBar")
             Platform.runLater { salesProgressBar.updateProgress(1.0, "Sales Updated!") }
             delay(1500) // Keep visible for a bit
             Platform.runLater { 
-                println("[DEBUG] KatCalculator: Hiding salesProgressBar")
                 salesProgressBar.isVisible = false 
             }
         }
@@ -407,6 +426,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                 "Profit Margin (Low to High)" -> allCards.sortedBy { it.profitMargin }
                 "Profit Amount" -> allCards.sortedByDescending { it.expectedProfit }
                 "Market Profit/hr" -> allCards.sortedByDescending { it.expectedHourlyMarketProfit ?: -Double.MAX_VALUE }
+                "Sales/hr" -> allCards.sortedByDescending { it.endHourlySales ?: -Double.MAX_VALUE }
                 "All Cards" -> allCards
                 else -> allCards
             }

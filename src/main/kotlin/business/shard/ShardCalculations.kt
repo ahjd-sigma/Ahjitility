@@ -6,7 +6,10 @@ object ShardCalculations {
         properties: Map<String, ShardProperties>,
         prices: Map<String, Double>,
         sellMode: String,
-        hunterFortune: Int = 0
+        hunterFortune: Int = 0,
+        chestPrices: Map<String, Double> = emptyMap(),
+        baitCounts: Map<String, Double> = emptyMap(),
+        baitPrice: Double = 0.0
     ): List<ShardInfo> = rates.map { (id, rate) ->
         val prop = properties[id]
         val displayName = prop?.name ?: id
@@ -18,7 +21,11 @@ object ShardCalculations {
             ratePerHour = rate,
             price = prices[id] ?: 0.0,
             sellMode = sellMode,
-            hunterFortune = hunterFortune
+            hunterFortune = hunterFortune,
+            chestPrice = chestPrices[displayName] ?: 0.0,
+            isFishingShard = prop?.isFishingShard ?: false,
+            baitCount = baitCounts[displayName] ?: 0.0,
+            baitPrice = baitPrice
         )
     }
 

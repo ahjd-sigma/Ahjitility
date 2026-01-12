@@ -18,8 +18,8 @@ object KatUIConfig : BaseConfig("kat_ui.yaml") {
     var instantCraftBg: String = "#1a2634"
     val costRed get() = GeneralConfig.colorAccentRed
     var cardSeparator: String = "#444444"
-    var labelColorPrimary: String = "#cccccc"
-    var labelColorSecondary: String = "#aaaaaa"
+    var labelColorPrimary: String = "#ffffff"
+    var labelColorSecondary: String = "#cccccc"
     var labelColorMuted: String = "#888888"
     val accentBlue get() = GeneralConfig.colorAccentBlue
     val accentGreen get() = GeneralConfig.colorAccentGreen
@@ -51,12 +51,12 @@ object KatUIConfig : BaseConfig("kat_ui.yaml") {
     var borderWidthThick: Double = 2.0
 
     // Style Strings
-    var styleLabelSecondaryBold: String = "-fx-text-fill: #aaaaaa; -fx-font-weight: bold; -fx-font-size: 13px;"
-    var styleLabelSecondary: String = "-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"
+    var styleLabelSecondaryBold: String = "-fx-text-fill: #cccccc; -fx-font-weight: bold; -fx-font-size: 13px;"
+    var styleLabelSecondary: String = "-fx-text-fill: #cccccc; -fx-font-size: 13px;"
     var styleLabelSmallYellow: String = "-fx-text-fill: #FFD700; -fx-font-size: 12px;"
-    var styleLabelSmall: String = "-fx-text-fill: #cccccc; -fx-font-size: 12px;"
-    var styleLabelNormal: String = "-fx-text-fill: #cccccc; -fx-font-size: 14px;"
-    var styleLabelNormalBold: String = "-fx-text-fill: #cccccc; -fx-font-weight: bold; -fx-font-size: 14px;"
+    var styleLabelSmall: String = "-fx-text-fill: #ffffff; -fx-font-size: 12px;"
+    var styleLabelNormal: String = "-fx-text-fill: #ffffff; -fx-font-size: 14px;"
+    var styleLabelNormalBold: String = "-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 14px;"
     var styleLabelExtraSmallBold: String = "-fx-font-weight: bold; -fx-font-size: 10px;"
     var styleBadgeSource: String = "-fx-background-color: rgba(60,60,60,0.5); -fx-padding: 1 4; -fx-background-radius: 3;"
 
@@ -181,8 +181,8 @@ object KatUIConfig : BaseConfig("kat_ui.yaml") {
         upgradeCardBg = "#2b2b2b"
         instantCraftBg = "#1a2634"
         cardSeparator = "#444444"
-        labelColorPrimary = "#cccccc"
-        labelColorSecondary = "#aaaaaa"
+        labelColorPrimary = "#ffffff"
+        labelColorSecondary = "#cccccc"
         labelColorMuted = "#888888"
         fontSizeExtraSmall = 11.0
         fontSizeSmall = 13.0
@@ -201,6 +201,10 @@ object KatUIConfig : BaseConfig("kat_ui.yaml") {
         borderRadiusLarge = 8.0
         borderWidthThin = 1.0
         borderWidthThick = 2.0
+        
+        uiUpdateDebounceMs = 100
+        statusDisplayMs = 5000
+        progressPollingMs = 500
         
         saveConfig()
         ConfigEvents.fire()

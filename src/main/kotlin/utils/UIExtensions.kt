@@ -19,6 +19,20 @@ fun String.label(style: String = Styles.label) = Label(this).apply { this.style 
 
 fun separator() = Separator(Orientation.VERTICAL)
 
+fun formatDuration(seconds: Int): String {
+    val days = seconds / 86400
+    val hours = (seconds % 86400) / 3600
+    val minutes = (seconds % 3600) / 60
+    val remainingSeconds = seconds % 60
+    
+    return buildString {
+        if (days > 0) append("${days}d ")
+        if (hours > 0) append("${hours}h ")
+        if (minutes > 0) append("${minutes}m ")
+        if (remainingSeconds > 0 || (days == 0 && hours == 0 && minutes == 0)) append("${remainingSeconds}s")
+    }.trim()
+}
+
 fun comboBox(vararg options: String, style: String = Styles.combo) =
     ComboBox<String>().apply {
         items.addAll(options)
@@ -57,8 +71,42 @@ fun Control.enableAdvancedScrolling(multiplierOverride: (() -> Double)? = null) 
     var scrollBar: ScrollBar? = null
     var isAutoscrolling = false
     var autoscrollStartY = 0.0
+    var currentMouseY = 0.0
+    var hasMovedSignificantDistance = false
     
+    val timer = object : AnimationTimer() {
+        override fun handle(now: Long) {
+            if (!isAutoscrolling) return
+            
+            if (scrollBar == null) {
+                scrollBar = lookup(".scroll-bar:vertical") as? ScrollBar
+            }
+            
+            scrollBar?.let { bar ->
+                val diffY = currentMouseY - autoscrollStartY
+                val deadzone = 15.0
+                if (abs(diffY) > deadzone) {
+                    val effectiveDiff = if (diffY > 0) diffY - deadzone else diffY + deadzone
+                    val speed = effectiveDiff * GeneralConfig.autoscrollSpeed * 2.0
+                    val newVal = (bar.value + speed).coerceIn(bar.min, bar.max)
+                    bar.value = newVal
+                }
+            }
+        }
+    }
+
+    fun stopAutoscroll() {
+        if (!isAutoscrolling) return
+        isAutoscrolling = false
+        timer.stop()
+        cursor = Cursor.DEFAULT
+    }
+
     addEventFilter(ScrollEvent.SCROLL) { event ->
+        if (isAutoscrolling) {
+            stopAutoscroll()
+        }
+        
         if (event.deltaY == 0.0 || event.isControlDown) return@addEventFilter
 
         if (scrollBar == null) {
@@ -82,34 +130,45 @@ fun Control.enableAdvancedScrolling(multiplierOverride: (() -> Double)? = null) 
 
     addEventFilter(MouseEvent.MOUSE_PRESSED) { event ->
         if (event.button == MouseButton.MIDDLE) {
-            isAutoscrolling = true
-            autoscrollStartY = event.y
-            cursor = Cursor.CLOSED_HAND
+            if (isAutoscrolling) {
+                stopAutoscroll()
+            } else {
+                isAutoscrolling = true
+                autoscrollStartY = event.y
+                currentMouseY = event.y
+                hasMovedSignificantDistance = false
+                cursor = Cursor.MOVE
+                timer.start()
+            }
+            event.consume()
+        } else if (isAutoscrolling) {
+            stopAutoscroll()
             event.consume()
         }
     }
 
     addEventFilter(MouseEvent.MOUSE_DRAGGED) { event ->
         if (isAutoscrolling) {
-            if (scrollBar == null) {
-                scrollBar = lookup(".scroll-bar:vertical") as? ScrollBar
-            }
-            
-            val diffY = event.y - autoscrollStartY
-            val speed = diffY * GeneralConfig.autoscrollSpeed
-
-            scrollBar?.let { bar ->
-                val newVal = (bar.value + speed).coerceIn(bar.min, bar.max)
-                bar.value = newVal
+            currentMouseY = event.y
+            if (abs(event.y - autoscrollStartY) > 10.0) {
+                hasMovedSignificantDistance = true
             }
             event.consume()
         }
     }
 
+    addEventFilter(MouseEvent.MOUSE_MOVED) { event ->
+        if (isAutoscrolling) {
+            currentMouseY = event.y
+            event.consume()
+        }
+    }
+
     addEventFilter(MouseEvent.MOUSE_RELEASED) { event ->
-        if (event.button == MouseButton.MIDDLE || isAutoscrolling) {
-            isAutoscrolling = false
-            cursor = Cursor.DEFAULT
+        if (event.button == MouseButton.MIDDLE && isAutoscrolling) {
+            if (hasMovedSignificantDistance) {
+                stopAutoscroll()
+            }
             event.consume()
         }
     }
