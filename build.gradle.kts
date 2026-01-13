@@ -6,7 +6,8 @@ plugins {
 }
 
 group = "org.sigma"
-version = "1.1.0"
+val appVersion = file("src/main/resources/version.txt").readText().trim()
+version = appVersion
 
 repositories {
     mavenCentral()
@@ -76,7 +77,7 @@ val createPortable = tasks.register<Exec>("createPortable") {
         "--main-class", "app.MainKt",
         "--name", "Ahjitility",
         "--vendor", "Sigma",
-        "--app-version", "1.1.0",
+        "--app-version", appVersion,
         "--icon", project.projectDir.resolve("resources/icons/kotlin.ico").absolutePath,
         "--java-options", "--add-opens javafx.graphics/javafx.scene=ALL-UNNAMED --add-opens javafx.controls/javafx.scene.control=ALL-UNNAMED"
     )

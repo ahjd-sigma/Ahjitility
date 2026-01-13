@@ -81,7 +81,7 @@ class MainApp : Application() {
                     VBox.setVgrow(this, Priority.ALWAYS)
                 },
 
-                Label("v1.1").apply {
+                Label("v${utils.GeneralConfig.VERSION}").apply {
                     style = "-fx-text-fill: #555555; -fx-font-size: 12px;"
                 }
             )
