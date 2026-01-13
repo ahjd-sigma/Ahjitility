@@ -168,7 +168,7 @@ class Launcher : Application() {
 
         scope.launch {
             try {
-                UpdateChecker.downloadAndInstallUpdate(updateInfo.downloadUrl) { status ->
+                UpdateChecker.downloadAndInstallUpdate(updateInfo) { status ->
                     Platform.runLater {
                         statusLabel.text = status
                     }

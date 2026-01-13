@@ -14,47 +14,115 @@ data class UpdateInfo(
     val version: String,
     val changelog: String,
     val downloadUrl: String,
-    val isUpdateAvailable: Boolean
+    val isUpdateAvailable: Boolean,
+    val isSourceUpdate: Boolean = true
 )
 
 object UpdateChecker {
     private val client = OkHttpClient()
     private val gson = Gson()
-    private const val REPO_OWNER = "Sigma"
+    private const val REPO_OWNER = "ahjd-sigma"
     private const val REPO_NAME = "Ahjitility"
     
     suspend fun checkForUpdates(): UpdateInfo = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
-            .url("https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest")
-            .header("Accept", "application/vnd.github.v3+json")
-            .build()
-
+        val releasesUrl = "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
+        val tagsUrl = "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/tags"
+        
         try {
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    println("Failed to check for updates: ${response.code}")
-                    return@withContext UpdateInfo(GeneralConfig.VERSION, "", "", false)
-                }
+            println("Checking for releases at: $releasesUrl")
+            val releaseInfo = fetchFromUrl(releasesUrl)
+            if (releaseInfo != null) return@withContext releaseInfo
 
-                val body = response.body?.string() ?: return@withContext UpdateInfo(GeneralConfig.VERSION, "", "", false)
-                val json = gson.fromJson(body, JsonObject::class.java)
-                
-                val tagName = json.get("tag_name").asString
-                val latestVersion = tagName.removePrefix("v")
-                val currentVersion = GeneralConfig.VERSION
-                
-                if (isNewer(latestVersion, currentVersion)) {
-                    val changelog = json.get("body").asString
-                    val downloadUrl = json.get("zipball_url").asString
-                    
-                    return@withContext UpdateInfo(tagName, changelog, downloadUrl, true)
-                }
-            }
+            println("No official release found. Checking tags at: $tagsUrl")
+            val tagInfo = fetchLatestTag(tagsUrl)
+            if (tagInfo != null) return@withContext tagInfo
+
         } catch (e: Exception) {
+            println("Error during update check: ${e.message}")
             e.printStackTrace()
         }
         
         return@withContext UpdateInfo(GeneralConfig.VERSION, "", "", false)
+    }
+
+    private fun fetchFromUrl(url: String): UpdateInfo? {
+        val request = Request.Builder()
+            .url(url)
+            .header("Accept", "application/vnd.github.v3+json")
+            .header("User-Agent", "Ahjitility-Launcher")
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+
+            val body = response.body?.string() ?: return null
+            val json = gson.fromJson(body, JsonObject::class.java)
+            
+            val tagName = json.get("tag_name").asString
+            val latestVersion = tagName.removePrefix("v").trim()
+            val currentVersion = GeneralConfig.VERSION.trim()
+            
+            println("Latest Release Found: $latestVersion")
+            println("Current Local Version: $currentVersion")
+            
+            if (isNewer(latestVersion, currentVersion)) {
+                val changelog = json.get("body").asString
+                
+                // Decide between JAR and Source update
+                val isSourceEnv = File("src").exists()
+                val assets = json.getAsJsonArray("assets")
+                
+                // Look for a .jar asset if we are not in source mode
+                val jarAsset = assets?.firstOrNull { 
+                    it.asJsonObject.get("name").asString.endsWith(".jar", true) 
+                }?.asJsonObject
+
+                return if (!isSourceEnv && jarAsset != null) {
+                    UpdateInfo(tagName, changelog, jarAsset.get("browser_download_url").asString, true, isSourceUpdate = false)
+                } else {
+                    UpdateInfo(tagName, changelog, json.get("zipball_url").asString, true, isSourceUpdate = true)
+                }
+            }
+        }
+        return null
+    }
+
+    private fun fetchLatestTag(url: String): UpdateInfo? {
+        val request = Request.Builder()
+            .url(url)
+            .header("Accept", "application/vnd.github.v3+json")
+            .header("User-Agent", "Ahjitility-Launcher")
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+
+            val body = response.body?.string() ?: return null
+            val jsonArray = gson.fromJson(body, com.google.gson.JsonArray::class.java)
+            if (jsonArray.size() == 0) return null
+            
+            val latestTag = jsonArray.get(0).asJsonObject
+            val tagName = latestTag.get("name").asString
+            val latestVersion = tagName.removePrefix("v").trim()
+            val currentVersion = GeneralConfig.VERSION.trim()
+            
+            println("Latest Tag Found: $latestVersion")
+            println("Current Local Version: $currentVersion")
+            
+            if (isNewer(latestVersion, currentVersion)) {
+                val isSourceEnv = File("src").exists()
+                val downloadUrl = latestTag.get("zipball_url").asString
+                
+                // Tags only have source zip, so if we're in packaged mode, we can't update via just a tag
+                if (!isSourceEnv) {
+                    println("Found newer tag, but no JAR asset available in a release. Skipping packaged update.")
+                    return null
+                }
+                
+                return UpdateInfo(tagName, "New tag found: $tagName (No official changelog provided)", downloadUrl, true, isSourceUpdate = true)
+            }
+        }
+        return null
     }
 
     private fun isNewer(latest: String, current: String): Boolean {
@@ -71,31 +139,36 @@ object UpdateChecker {
         return false
     }
 
-    suspend fun downloadAndInstallUpdate(downloadUrl: String, onProgress: (String) -> Unit) = withContext(Dispatchers.IO) {
+    suspend fun downloadAndInstallUpdate(updateInfo: UpdateInfo, onProgress: (String) -> Unit) = withContext(Dispatchers.IO) {
         onProgress("Downloading update...")
-        val request = Request.Builder().url(downloadUrl).build()
+        val request = Request.Builder().url(updateInfo.downloadUrl).build()
         
         try {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw Exception("Failed to download update")
                 
-                val zipFile = File("update.zip")
                 val body = response.body ?: throw Exception("Empty response body")
                 
-                FileOutputStream(zipFile).use { output ->
-                    body.byteStream().copyTo(output)
+                if (updateInfo.isSourceUpdate) {
+                    val zipFile = File("update.zip")
+                    FileOutputStream(zipFile).use { output -> body.byteStream().copyTo(output) }
+                    onProgress("Preparing update...")
+                    val stageDir = prepareUpdateStaging(zipFile)
+                    onProgress("Launching updater script...")
+                    createAndRunBatchScript(stageDir, isSource = true)
+                } else {
+                    // Packaged JAR update
+                    val currentJarPath = File(UpdateChecker::class.java.protectionDomain.codeSource.location.toURI()).absolutePath
+                    val newJar = File("update_new.jar")
+                    FileOutputStream(newJar).use { output -> body.byteStream().copyTo(output) }
+                    onProgress("Launching updater script...")
+                    createAndRunBatchScript(newJar, isSource = false, targetPath = currentJarPath)
                 }
-                
-                onProgress("Preparing update...")
-                val stageDir = prepareUpdateStaging(zipFile)
-                
-                onProgress("Launching updater script...")
-                createAndRunBatchScript(stageDir)
             }
         } catch (e: Exception) {
             e.printStackTrace()
             onProgress("Update failed: ${e.message}")
-            throw e // Re-throw to let UI know
+            throw e
         }
     }
 
@@ -144,31 +217,49 @@ object UpdateChecker {
         return stagingDir
     }
 
-    private fun createAndRunBatchScript(stagingDir: File) {
+    private fun createAndRunBatchScript(updateFile: File, isSource: Boolean, targetPath: String = "") {
         val batchFile = File("update.bat")
-        val script = """
-            @echo off
-            echo Waiting for application to close...
-            timeout /t 3 /nobreak > NUL
-            
-            echo Removing old source code...
-            rmdir /s /q src
-            
-            echo Installing new update...
-            move /Y "${stagingDir.absolutePath}\src" src
-            
-            echo Cleaning up...
-            rmdir /s /q "${stagingDir.absolutePath}"
-            del update.bat
-            
-            echo Update Complete!
-            echo You can now restart the application.
-            pause
-        """.trimIndent()
+        
+        val script = if (isSource) {
+            """
+                @echo off
+                echo Waiting for application to close...
+                timeout /t 3 /nobreak > NUL
+                
+                echo Removing old source code...
+                if exist src rmdir /s /q src
+                
+                echo Installing new update...
+                move /Y "${updateFile.absolutePath}\src" src
+                
+                echo Cleaning up...
+                rmdir /s /q "${updateFile.absolutePath}"
+                del update.bat
+                
+                echo Update Complete!
+                echo You can now restart the application.
+                pause
+            """.trimIndent()
+        } else {
+            // JAR Update: Replace the running JAR
+            """
+                @echo off
+                echo Waiting for application to close...
+                timeout /t 3 /nobreak > NUL
+                
+                echo Replacing application file...
+                move /Y "${updateFile.absolutePath}" "$targetPath"
+                
+                echo Update Complete!
+                echo Restarting...
+                start "" "$targetPath"
+                del update.bat
+            """.trimIndent()
+        }
         
         batchFile.writeText(script)
         
-        // Execute batch file detached
-        Runtime.getRuntime().exec("cmd /c start update.bat")
+        // Execute batch file detached using ProcessBuilder (replaces deprecated Runtime.exec)
+        ProcessBuilder("cmd", "/c", "start", "update.bat").start()
     }
 }

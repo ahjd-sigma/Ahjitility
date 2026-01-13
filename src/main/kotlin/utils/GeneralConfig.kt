@@ -5,7 +5,12 @@ package utils
  * Manages UI colors, font sizes, and scrolling behavior.
  */
 object GeneralConfig : BaseConfig("general.yaml") {
-    val VERSION = GeneralConfig::class.java.getResourceAsStream("/version.txt")?.bufferedReader()?.use { it.readText().trim() } ?: "unknown"
+    val VERSION = try {
+        GeneralConfig::class.java.getResourceAsStream("/version.txt")?.bufferedReader()?.use { it.readText().trim() }
+            ?: java.io.File("src/main/resources/version.txt").readText().trim()
+    } catch (e: Exception) {
+        "1.1.0" // Ultimate fallback
+    }
     private const val SCROLL_UNIT = 1_000_000.0
     
     // Scroll settings
