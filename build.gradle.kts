@@ -92,63 +92,36 @@ val createPortable = tasks.register<Exec>("createPortable") {
     }
 }
 
-val packageRelease = tasks.register<Zip>("packageRelease") {
-    dependsOn("shadowJar", createPortable)
-    group = "distribution"
-    description = "Packages both JAR and EXE versions into a single ZIP"
-
-    val releaseDir = layout.buildDirectory.dir("release-staging").get().asFile
-    
-    // Set zip properties
-    archiveFileName.set("Ahjitility-v${project.version}.zip")
-    destinationDirectory.set(layout.buildDirectory.dir("dist"))
-
-    // Define what goes into the ZIP
-    from(layout.buildDirectory.dir("dist/portable/Ahjitility")) {
-        into("Windows-Portable-EXE")
-    }
-    
-    // Add Standalone JAR version
-    from(layout.buildDirectory.file("libs/Ahjitility.jar")) {
-        into("Standalone-JAR")
-    }
-    
-    // Add config and run.bat to Standalone JAR folder
-    from(project.projectDir.resolve("config")) {
-        into("Standalone-JAR/config")
-    }
-
-    doFirst {
-        if (releaseDir.exists()) releaseDir.deleteRecursively()
-        releaseDir.mkdirs()
-
-        // Generate run.bat for the Standalone JAR folder inside the zip
-        val runBatFile = File(releaseDir, "run.bat")
-        runBatFile.writeText("""
-            @echo off
-            echo Starting Ahjitility (Standalone JAR version)...
-            java -jar Ahjitility.jar
-            if %ERRORLEVEL% neq 0 (
-                echo.
-                echo [ERROR] Application crashed or failed to start.
-                echo Make sure you have Java 21+ installed.
-                pause
-            )
-        """.trimIndent())
-    }
-
-    from(releaseDir) {
-        into("Standalone-JAR")
-    }
-
-    doLast {
-        println("\n============================================================")
-        println("  BUILD SUCCESSFUL - RELEASE PACKAGED")
-        println("============================================================")
-        println("  Final Release ZIP: ${archiveFile.get().asFile.absolutePath}")
-        println("  Contains:")
-        println("    - /Windows-Portable-EXE (Full bundle, no Java needed)")
-        println("    - /Standalone-JAR (Small file, requires Java 21 installed)")
-        println("============================================================\n")
-    }
-}
+val packageRelease = tasks.register("packageRelease") {
+     dependsOn("shadowJar", createPortable)
+     group = "distribution"
+     description = "Packages the application into assets for GitHub Releases"
+ 
+     val releasesDir = layout.buildDirectory.dir("releases").get().asFile
+ 
+     doLast {
+         if (releasesDir.exists()) releasesDir.deleteRecursively()
+         releasesDir.mkdirs()
+ 
+         // 1. Create the Portable ZIP (contains app, runtime, exe)
+         val portableZip = File(releasesDir, "Ahjitility-v${project.version}-portable-windows.zip")
+         val portableSource = layout.buildDirectory.dir("dist/portable/Ahjitility").get().asFile
+         
+         ant.withGroovyBuilder {
+             "zip"("destfile" to portableZip, "basedir" to portableSource.parentFile, "includes" to "${portableSource.name}/**")
+         }
+ 
+         // 2. Copy the Standalone JAR directly (no ZIP)
+         val shadowJarFile = layout.buildDirectory.file("libs/Ahjitility.jar").get().asFile
+         val releaseJar = File(releasesDir, "Ahjitility-v${project.version}.jar")
+         shadowJarFile.copyTo(releaseJar, overwrite = true)
+ 
+         println("\n============================================================")
+         println("  BUILD SUCCESSFUL - RELEASE ASSETS PREPARED")
+         println("============================================================")
+         println("  Assets in: ${releasesDir.absolutePath}")
+         println("    1. ${portableZip.name} (Portable EXE Bundle ZIP)")
+         println("    2. ${releaseJar.name} (Standalone Raw JAR)")
+         println("============================================================\n")
+     }
+ }

@@ -72,9 +72,9 @@ object UpdateChecker {
                 val isSourceEnv = File("src").exists()
                 val assets = json.getAsJsonArray("assets")
                 
-                // Look for a .jar asset if we are not in source mode
+                // Look for a raw .jar asset
                 val jarAsset = assets?.firstOrNull { 
-                    it.asJsonObject.get("name").asString.endsWith(".jar", true) 
+                    it.asJsonObject.get("name").asString.lowercase().endsWith(".jar")
                 }?.asJsonObject
 
                 return if (!isSourceEnv && jarAsset != null) {
@@ -157,12 +157,23 @@ object UpdateChecker {
                     onProgress("Launching updater script...")
                     createAndRunBatchScript(stageDir, isSource = true)
                 } else {
-                    // Packaged JAR update
-                    val currentJarPath = File(UpdateChecker::class.java.protectionDomain.codeSource.location.toURI()).absolutePath
+                    // Packaged Update: Pull the raw JAR directly
+                    val currentJarFile = File(UpdateChecker::class.java.protectionDomain.codeSource.location.toURI())
+                    val currentJarPath = currentJarFile.absolutePath
                     val newJar = File("update_new.jar")
+                    
+                    // Try to find the EXE launcher (jpackage structure: Ahjitility.exe is parent of 'app' folder)
+                    val appDir = currentJarFile.parentFile
+                    val rootDir = appDir?.parentFile
+                    val launcherExe = if (rootDir != null && appDir.name == "app") {
+                        rootDir.listFiles()?.firstOrNull { it.name.endsWith(".exe") && !it.name.contains("update") }
+                    } else null
+
+                    onProgress("Downloading JAR...")
                     FileOutputStream(newJar).use { output -> body.byteStream().copyTo(output) }
+                    
                     onProgress("Launching updater script...")
-                    createAndRunBatchScript(newJar, isSource = false, targetPath = currentJarPath)
+                    createAndRunBatchScript(newJar, isSource = false, targetPath = currentJarPath, launcherPath = launcherExe?.absolutePath ?: "")
                 }
             }
         } catch (e: Exception) {
@@ -217,15 +228,27 @@ object UpdateChecker {
         return stagingDir
     }
 
-    private fun createAndRunBatchScript(updateFile: File, isSource: Boolean, targetPath: String = "") {
+    private fun createAndRunBatchScript(updateFile: File, isSource: Boolean, targetPath: String = "", launcherPath: String = "") {
         val batchFile = File("update.bat")
+        val pid = ProcessHandle.current().pid()
         
-        val script = if (isSource) {
+        // Use a self-deleting exit strategy for the batch file
+        val selfDeleteExit = "(goto) 2>nul & del \"%~f0\" & exit"
+        
+        // Common wait logic using PID (works for both JAR and EXE)
+        val waitLogic = """
+            echo Waiting for application (PID: $pid) to close...
+            :wait_pid
+            tasklist /FI "PID eq $pid" 2>NUL | find /I /N "$pid">NUL
+            if "%ERRORLEVEL%"=="0" (
+                timeout /t 1 /nobreak > NUL
+                goto wait_pid
+            )
+        """.trimIndent()
+
+        // Define the core update actions based on type
+        val updateAction = if (isSource) {
             """
-                @echo off
-                echo Waiting for application to close...
-                timeout /t 3 /nobreak > NUL
-                
                 echo Removing old source code...
                 if exist src rmdir /s /q src
                 
@@ -234,32 +257,62 @@ object UpdateChecker {
                 
                 echo Cleaning up...
                 rmdir /s /q "${updateFile.absolutePath}"
-                del update.bat
                 
                 echo Update Complete!
                 echo You can now restart the application.
                 pause
             """.trimIndent()
         } else {
-            // JAR Update: Replace the running JAR
+            val restartCommand = if (launcherPath.isNotEmpty()) {
+                "start \"\" \"$launcherPath\""
+            } else {
+                "start \"\" \"$targetPath\""
+            }
+            
             """
-                @echo off
-                echo Waiting for application to close...
-                timeout /t 3 /nobreak > NUL
-                
                 echo Replacing application file...
+                :retry
                 move /Y "${updateFile.absolutePath}" "$targetPath"
+                if errorlevel 1 (
+                    echo File is still locked, retrying in 2 seconds...
+                    timeout /t 2 /nobreak > NUL
+                    goto retry
+                )
                 
                 echo Update Complete!
                 echo Restarting...
-                start "" "$targetPath"
-                del update.bat
+                $restartCommand
             """.trimIndent()
         }
+
+        val script = """
+            @echo off
+            title Ahjitility Updater
+            $waitLogic
+            
+            $updateAction
+            $selfDeleteExit
+        """.trimIndent()
         
         batchFile.writeText(script)
         
-        // Execute batch file detached using ProcessBuilder (replaces deprecated Runtime.exec)
-        ProcessBuilder("cmd", "/c", "start", "update.bat").start()
+        val absoluteBatchPath = batchFile.absolutePath
+        println("Launching updater at: $absoluteBatchPath")
+        
+        try {
+            // Use 'explorer.exe' to launch the batch file. 
+            ProcessBuilder("explorer.exe", absoluteBatchPath).start()
+            
+            // Give the OS a moment to fully spawn the detached process
+            Thread.sleep(1000)
+        } catch (e: Exception) {
+            println("Failed to launch batch via Explorer: ${e.message}")
+            // Fallback to basic start
+            try {
+                 ProcessBuilder("cmd", "/c", "start", "Ahjitility Updater", "cmd", "/c", "\"$absoluteBatchPath\"").start()
+            } catch (e2: Exception) {
+                 println("Critical failure launching batch: ${e2.message}")
+            }
+        }
     }
 }
