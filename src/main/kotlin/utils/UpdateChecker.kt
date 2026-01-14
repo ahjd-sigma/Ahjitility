@@ -69,6 +69,7 @@ object UpdateChecker {
                 
                 // Decide between JAR and Source update
                 val isSourceEnv = File("src").exists()
+                val isRunningFromJar = UpdateChecker::class.java.protectionDomain.codeSource.location.path.lowercase().endsWith(".jar")
                 val assets = json.getAsJsonArray("assets")
                 
                 // Look for a raw .jar asset
@@ -76,7 +77,10 @@ object UpdateChecker {
                     it.asJsonObject.get("name").asString.lowercase().endsWith(".jar")
                 }?.asJsonObject
 
-                return if (!isSourceEnv && jarAsset != null) {
+                return if (isRunningFromJar && jarAsset != null) {
+                    // If we are running from a jar, prioritize jar update if available
+                    UpdateInfo(tagName, changelog, jarAsset.get("browser_download_url").asString, true, isSourceUpdate = false)
+                } else if (!isSourceEnv && jarAsset != null) {
                     UpdateInfo(tagName, changelog, jarAsset.get("browser_download_url").asString, true, isSourceUpdate = false)
                 } else {
                     UpdateInfo(tagName, changelog, json.get("zipball_url").asString, true, isSourceUpdate = true)
@@ -249,10 +253,24 @@ object UpdateChecker {
         val updateAction = if (isSource) {
             """
                 echo Removing old source code...
-                if exist src rmdir /s /q src
+                :retry_rmdir
+                if exist src (
+                    rmdir /s /q src
+                    if exist src (
+                        echo Failed to remove src directory, retrying in 2 seconds...
+                        timeout /t 2 /nobreak > NUL
+                        goto retry_rmdir
+                    )
+                )
                 
                 echo Installing new update...
+                :retry_move
                 move /Y "${updateFile.absolutePath}\src" src
+                if errorlevel 1 (
+                    echo Access denied or file locked, retrying in 2 seconds...
+                    timeout /t 2 /nobreak > NUL
+                    goto retry_move
+                )
                 
                 echo Cleaning up...
                 rmdir /s /q "${updateFile.absolutePath}"

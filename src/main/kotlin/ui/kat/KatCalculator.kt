@@ -17,8 +17,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val taskQueue = TaskQueue(scope)
-    private var uiUpdateJob: Job? = null
-    
+
     private val timeReducer = KatTimeReducer()
     private var rawResults = listOf<KatFamilyResult>()
     private var isRecipeFetching = false
@@ -213,7 +212,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         // End Sales
         val endId = getPetRarityId(baseName, if (card.isCraftOnly) null else card.endRarity)
         val endSales = priceFetcher.fetchHourlySales(endId)
-        val marketProfit = if (endSales != null) endSales * card.expectedProfit else null
+        val marketProfit = endSales * card.expectedProfit
         
         // Start Sales (N/A for craft only)
         val startSales = if (card.isCraftOnly) null else {
