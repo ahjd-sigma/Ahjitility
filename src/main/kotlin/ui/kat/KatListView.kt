@@ -1,33 +1,23 @@
 package ui.kat
 
-import business.kat.*
-import javafx.geometry.Pos
-import javafx.geometry.Insets
-import javafx.scene.layout.VBox
-import javafx.scene.layout.HBox
-import javafx.scene.layout.FlowPane
-import javafx.scene.control.*
-import javafx.scene.paint.Color
-import javafx.scene.shape.Line
-
+import business.kat.KatFamilyResult
+import business.kat.KatUpgradeCard
+import business.kat.MaterialCost
+import business.kat.PriceSource
 import javafx.collections.FXCollections
+import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
-import javafx.scene.control.ScrollBar
-import javafx.animation.AnimationTimer
-import javafx.beans.property.SimpleDoubleProperty
-import javafx.scene.input.ScrollEvent
-import kotlin.math.abs
-import utils.KatUIConfig
-import utils.KatConfig
-import utils.GeneralConfig
-import utils.enableAdvancedScrolling
-import business.kat.PriceSource
+import javafx.scene.layout.FlowPane
+import javafx.scene.paint.Color
+import javafx.scene.shape.Line
+import utils.*
 
 class KatListView(private val onToggleExclude: (String) -> Unit) {
     private val items = FXCollections.observableArrayList<KatFamilyResult>()
     
-    val node = ListView<KatFamilyResult>(items).apply {
+    val node = ListView(items).apply {
         style = "-fx-background-color: transparent; -fx-background: transparent; -fx-control-inner-background: transparent;"
         setCellFactory {
             object : ListCell<KatFamilyResult>() {
@@ -47,60 +37,57 @@ class KatListView(private val onToggleExclude: (String) -> Unit) {
         selectionModel = null
         
         // Add advanced scrolling
-        enableAdvancedScrolling({ GeneralConfig.katScrollMultiplier })
+        enableAdvancedScrolling { GeneralConfig.katScrollMultiplier }
     }
 
     fun updateItems(results: List<KatFamilyResult>) {
         items.setAll(results)
     }
 
-    private fun createFamilyBox(result: KatFamilyResult) = VBox(KatUIConfig.familyBoxSpacing).apply {
-        padding = Insets(KatUIConfig.familyBoxPadding)
-        val isExcluded = result.isExcluded
+    private fun createFamilyBox(family: KatFamilyResult) = vbox(KatUIConfig.familyBoxSpacing) {
         style = """
-            -fx-background-color: ${if (isExcluded) KatUIConfig.familyBoxBgExcluded else KatUIConfig.familyBoxBgNormal};
+            -fx-background-color: ${if (family.isExcluded) KatUIConfig.familyBoxBgExcluded else KatUIConfig.familyBoxBgNormal};
             -fx-background-radius: ${KatUIConfig.borderRadiusLarge};
-            -fx-border-color: ${if (isExcluded) KatUIConfig.familyBoxBorderExcluded else if (result.family.isFullFamily) KatUIConfig.accentBlue else KatUIConfig.familyBoxBorderPartial};
+            -fx-padding: ${KatUIConfig.familyBoxPadding};
+            -fx-border-color: ${if (family.isExcluded) KatUIConfig.accentRed else "transparent"};
+            -fx-border-width: ${if (family.isExcluded) KatUIConfig.borderWidthThick else 0.0};
             -fx-border-radius: ${KatUIConfig.borderRadiusLarge};
-            -fx-border-width: ${KatUIConfig.borderWidthThick};
-            -fx-opacity: ${if (isExcluded) KatUIConfig.familyBoxOpacityExcluded else 1.0};
+            -fx-opacity: ${if (family.isExcluded) KatUIConfig.familyBoxOpacityExcluded else 1.0};
         """.trimIndent()
+        
+        // Determine the highest rarity color for the family name
+        val highestRarity = family.upgradeCards
+            .map { it.endRarity.uppercase() }
+            .maxByOrNull { KatConfig.rarities.indexOf(it) } ?: "COMMON"
+        val familyColor = KatUIConfig.rarityColors[highestRarity] ?: KatUIConfig.rarityColorFallback
 
         children.addAll(
-            HBox().apply {
-                alignment = Pos.CENTER_LEFT
+            hbox(KatUIConfig.spacingSmall) {
                 children.addAll(
-                    Label(if (result.family.isFullFamily) "Full Family " else "Partial Family ").apply {
-                        style = "-fx-text-fill: ${KatUIConfig.labelColorSecondary}; -fx-font-size: ${KatUIConfig.fontSizeLarge}px;"
-                    },
-                    Label(result.family.name.replace("_", " ")).apply {
-                        style = "-fx-text-fill: white; -fx-font-size: ${KatUIConfig.fontSizeExtraLarge}px; -fx-font-weight: bold;"
-                    },
+                    family.family.name.replace("_", " ").label(familyColor, KatUIConfig.fontSizeExtraLarge, true),
                     spacer(),
-                    Button(if (isExcluded) "Include" else "Exclude").apply {
+                    (if (family.isExcluded) "Include" else "Exclude").button(onClick = { onToggleExclude(family.family.name) }).apply {
                         style = """
-                            -fx-background-color: ${if (isExcluded) KatUIConfig.accentGreen else KatUIConfig.accentRed};
+                            -fx-background-color: ${if (family.isExcluded) KatUIConfig.accentGreen else KatUIConfig.accentRed};
                             -fx-text-fill: white;
+                            -fx-font-weight: bold;
                             -fx-font-size: ${KatUIConfig.fontSizeSmall}px;
-                            -fx-padding: ${KatUIConfig.paddingSmall / 2} ${KatUIConfig.paddingSmall * 1.5};
                             -fx-background-radius: ${KatUIConfig.borderRadiusSmall};
                         """.trimIndent()
-                        setOnAction { onToggleExclude(result.family.name) }
                     }
                 )
             },
             FlowPane(KatUIConfig.cardSpacing, KatUIConfig.cardSpacing).apply {
-                padding = Insets(KatUIConfig.paddingSmall, 0.0, 0.0, 0.0)
-                result.upgradeCards.forEach { card ->
-                    children.add(createCard(card, isExcluded))
-                }
+                hgap = KatUIConfig.cardSpacing
+                vgap = KatUIConfig.cardSpacing
+                children.addAll(family.upgradeCards.map { createCard(it, family.isExcluded) })
             }
         )
     }
 
 
 
-    private fun createCardContainer(isExcluded: Boolean, profit: Double, isCraftOnly: Boolean) = VBox(KatUIConfig.spacingSmall).apply {
+    private fun createCardContainer(isExcluded: Boolean, profit: Double, isCraftOnly: Boolean) = vbox(KatUIConfig.spacingSmall) {
         padding = Insets(KatUIConfig.cardPadding)
         minWidth = KatUIConfig.cardMinWidth
         style = """
@@ -112,10 +99,9 @@ class KatListView(private val onToggleExclude: (String) -> Unit) {
         """.trimIndent()
     }
 
-    private fun createSalesDisplay(sales: Double?, isExcluded: Boolean, alignment: Pos = Pos.CENTER) = HBox(KatUIConfig.spacingTiny).apply {
-        this.alignment = alignment
+    private fun createSalesDisplay(sales: Double?, isExcluded: Boolean, alignment: Pos = Pos.CENTER) = hbox(KatUIConfig.spacingTiny, alignment) {
         children.addAll(
-            Label("Sales/hr:").apply { style = "-fx-text-fill: ${KatUIConfig.labelColorMuted}; -fx-font-size: ${KatUIConfig.fontSizeExtraSmall}px;" },
+            "Sales/hr:".label(color = KatUIConfig.labelColorMuted, size = "${KatUIConfig.fontSizeExtraSmall}px"),
             valueLabel(
                 value = sales,
                 format = "%.1f",
@@ -127,40 +113,46 @@ class KatListView(private val onToggleExclude: (String) -> Unit) {
         )
     }
 
-    private fun createMaterialList(materials: List<MaterialCost>, isExcluded: Boolean, fee: Double? = null) = VBox(KatUIConfig.spacingTiny).apply {
-        children.add(Label("Materials:").apply {
-            style = "-fx-text-fill: ${KatUIConfig.labelColorSecondary}; -fx-font-size: ${KatUIConfig.fontSizeNormal}px; -fx-font-weight: bold;"
-        })
+    private fun createMaterialList(materials: List<MaterialCost>, isExcluded: Boolean, fee: Double? = null) = vbox(KatUIConfig.spacingTiny) {
+        children.add("Materials:".label(
+            color = KatUIConfig.labelColorSecondary,
+            size = "${KatUIConfig.fontSizeNormal}px",
+            bold = true
+        ))
         
         // Add Kat Fee (Coins) if provided
         fee?.let {
-            children.add(HBox(KatUIConfig.spacingSmall).apply {
-                alignment = Pos.CENTER_LEFT
+            children.add(hbox(KatUIConfig.spacingSmall) {
                 children.addAll(
-                    Label("Kat Fee:").apply {
-                        style = "-fx-text-fill: ${KatUIConfig.labelColorPrimary}; -fx-font-size: ${KatUIConfig.fontSizeSmall}px;"
-                    },
+                    "Kat Fee:".label(
+                        color = KatUIConfig.labelColorPrimary,
+                        size = "${KatUIConfig.fontSizeSmall}px"
+                    ),
                     spacer(),
-                    Label(if (isExcluded) "N/A" else String.format(KatUIConfig.formatCoins, it)).apply {
-                        style = "-fx-text-fill: ${KatUIConfig.labelColorSecondary}; -fx-font-size: ${KatUIConfig.fontSizeSmall}px;"
-                    }
+                    (if (isExcluded) "N/A" else String.format(KatUIConfig.formatCoins, it)).label(
+                        color = KatUIConfig.labelColorSecondary,
+                        size = "${KatUIConfig.fontSizeSmall}px"
+                    )
                 )
             })
         }
         
         materials.forEach { material ->
-            children.add(HBox(KatUIConfig.spacingSmall).apply {
-                alignment = Pos.CENTER_LEFT
+            children.add(hbox(KatUIConfig.spacingSmall) {
                 children.addAll(
-                    Label("• ${material.displayName} x${material.quantity}").apply {
-                        style = "-fx-text-fill: ${KatUIConfig.labelColorPrimary}; -fx-font-size: ${KatUIConfig.fontSizeSmall}px;"
-                    },
+                    "• ${material.displayName} x${material.quantity}".label(
+                        color = KatUIConfig.labelColorPrimary,
+                        size = "${KatUIConfig.fontSizeSmall}px"
+                    ),
                     if (material.isBazaar || material.totalPrice > 0) { // Only show source for craft-only or if price known
-                        Label(if (material.isBazaar) "BZ" else "AH").apply {
-                            style = "-fx-text-fill: ${if (material.isBazaar) KatUIConfig.accentCyan else KatUIConfig.accentMagenta}; -fx-font-size: ${KatUIConfig.fontSizeExtraSmall}px; -fx-font-weight: bold;"
+                        (if (material.isBazaar) "BZ" else "AH").label(
+                            color = if (material.isBazaar) KatUIConfig.accentCyan else KatUIConfig.accentMagenta,
+                            size = "${KatUIConfig.fontSizeExtraSmall}px",
+                            bold = true
+                        ).apply {
                             padding = Insets(0.0, 0.0, 0.0, KatUIConfig.paddingTiny)
                         }
-                    } else Label(),
+                    } else "".label(),
                     spacer(),
                     valueLabel(
                         value = material.totalPrice,
@@ -186,10 +178,10 @@ private fun createCraftContent(card: KatUpgradeCard, isExcluded: Boolean) =
     vbox(KatUIConfig.spacingTiny) {
         alignment = Pos.CENTER
         children.addAll(
-            label(KatConfig.rarities.first(), size = KatUIConfig.fontSizeLarge, bold = true),
+            KatConfig.rarities.first().label(size = KatUIConfig.fontSizeLarge, bold = true),
             hbox(KatUIConfig.spacingSmall, Pos.CENTER) {
                 children.addAll(
-                    label("AH Price:", KatUIConfig.labelColorSecondary, KatUIConfig.fontSizeSmall),
+                    "AH Price:".label(KatUIConfig.labelColorSecondary, KatUIConfig.fontSizeSmall),
                     priceLabel(card.endPrice, KatUIConfig.formatPrice, isExcluded, KatUIConfig.accentGreen)
                 )
             }
@@ -198,10 +190,10 @@ private fun createCraftContent(card: KatUpgradeCard, isExcluded: Boolean) =
             children.add(createSalesDisplay(card.endHourlySales, isExcluded))
         }
         
-        // Instant craft label
+        // Craft label
         children.add(hbox(KatUIConfig.spacingSmall, Pos.CENTER) {
             padding = Insets(KatUIConfig.paddingSmall, 0.0, KatUIConfig.paddingSmall, 0.0)
-            children.add(label("Instant Craft", KatUIConfig.accentBlue, KatUIConfig.fontSizeSmall, true).apply {
+            children.add("Craft".label(KatUIConfig.accentBlue, KatUIConfig.fontSizeSmall, true).apply {
                 style += " -fx-background-color: ${KatUIConfig.instantCraftBg}; -fx-padding: ${KatUIConfig.paddingTiny} ${KatUIConfig.paddingSmall * 1.5}; -fx-background-radius: ${KatUIConfig.borderRadiusSmall};"
             })
         })
@@ -216,19 +208,12 @@ private fun createCraftContent(card: KatUpgradeCard, isExcluded: Boolean) =
         })
         
         // Summary
-        children.add(vbox(KatUIConfig.spacingSmall / 1.5) {
-            children.addAll(
-                createSummaryRow("Total Craft Cost:", card.totalCost, KatUIConfig.formatPrice, KatUIConfig.costRed, isExcluded),
-                createSummaryRow("Expected Profit:", card.expectedProfit, KatUIConfig.formatPrice, if (!isExcluded && card.expectedProfit > 0) KatUIConfig.accentGreen else if (!isExcluded && card.expectedProfit < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true),
-                createSummaryRow("Margin:", card.profitMargin, KatUIConfig.formatPercent, if (!isExcluded && card.profitMargin > 0) KatUIConfig.accentGreen else if (!isExcluded && card.profitMargin < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true)
-            )
-        })
+        children.add(createProfitSummary(card, isExcluded))
     }
 
-    private fun createSummaryRow(label: String, value: Double, format: String, color: String, isExcluded: Boolean, isBold: Boolean = false) = HBox(KatUIConfig.spacingSmall).apply {
-        alignment = Pos.CENTER_LEFT
+    private fun createSummaryRow(label: String, value: Double, format: String, color: String, isExcluded: Boolean, isBold: Boolean = false) = hbox(KatUIConfig.spacingSmall) {
         children.addAll(
-            Label(label).apply { style = KatUIConfig.styleLabelSecondary },
+            label.label().apply { style = KatUIConfig.styleLabelSecondary },
             spacer(),
             valueLabel(
             value = value,
@@ -246,7 +231,7 @@ private fun createCraftContent(card: KatUpgradeCard, isExcluded: Boolean) =
         children.add(hbox(KatUIConfig.spacingSmall, Pos.CENTER) {
             children.addAll(
                 createRaritySection(card.startRarity, card.startPrice, card.startPriceSource, card.startHourlySales, isExcluded),
-                label("→", KatUIConfig.labelColorSecondary, KatUIConfig.fontSizeSmall),
+                "→".label(KatUIConfig.labelColorSecondary, KatUIConfig.fontSizeSmall),
                 createRaritySection(card.endRarity, card.endPrice, card.endPriceSource, card.endHourlySales, isExcluded)
             )
         })
@@ -268,39 +253,38 @@ private fun createRaritySection(rarity: String, price: Double?, source: PriceSou
     vbox(KatUIConfig.spacingTiny) {
         alignment = Pos.CENTER
         children.addAll(
-            label(rarity, KatUIConfig.rarityColors[rarity] ?: KatUIConfig.rarityColorFallback, KatUIConfig.fontSizeMedium, true),
+            rarity.label(KatUIConfig.rarityColors[rarity] ?: KatUIConfig.rarityColorFallback, KatUIConfig.fontSizeMedium, true),
             hbox(KatUIConfig.spacingTiny, Pos.CENTER) {
                 children.addAll(
                     priceLabel(price, KatUIConfig.formatPrice, isExcluded),
                     if (!isExcluded && source != PriceSource.UNKNOWN) {
-                        label(
-                            if (source == PriceSource.AH) "AH" else "Craft",
+                        (if (source == PriceSource.AH) "AH" else "Craft").label(
                             if (source == PriceSource.AH) KatUIConfig.accentBlue else KatUIConfig.accentWarning,
                             KatUIConfig.fontSizeExtraSmall,
                             true
                         )
-                    } else Label()
+                    } else "".label()
                 )
             }
         )
         if (!isExcluded && sales != null) {
-            children.add(createSalesDisplay(sales, isExcluded))
+            children.add(createSalesDisplay(sales, false))
         }
     }
 
-    private fun createDurationDisplay(card: KatUpgradeCard, isExcluded: Boolean) = HBox(KatUIConfig.spacingSmall).apply {
-        alignment = Pos.CENTER_LEFT
+    private fun createDurationDisplay(card: KatUpgradeCard, isExcluded: Boolean) = hbox(KatUIConfig.spacingSmall) {
+        val skipSeconds = ((card.baseDuration - card.reducedDuration) * 3600).toInt()
         children.addAll(
-            Label("Time:").apply { style = KatUIConfig.styleLabelSecondaryBold },
-            Label(if (isExcluded) "N/A" else String.format(KatUIConfig.formatDuration, card.baseDuration)).apply {
+            "Time:".label().apply { style = KatUIConfig.styleLabelSecondaryBold },
+            (if (isExcluded) "N/A" else formatDuration(skipSeconds)).label().apply {
                 style = "${KatUIConfig.styleLabelNormalBold} -fx-text-fill: ${if (card.reducedDuration <= KatConfig.targetMaxDurationHours) KatUIConfig.accentGreen else KatUIConfig.accentWarning};"
             }
         )
     }
 
-    private fun createTimeReductionDisplay(card: KatUpgradeCard, isExcluded: Boolean) = VBox(KatUIConfig.spacingTiny).apply {
+    private fun createTimeReductionDisplay(card: KatUpgradeCard, isExcluded: Boolean) = vbox(KatUIConfig.spacingTiny) {
         if (card.flowerCount > 0 || card.bouquetCount > 0) {
-            children.add(Label("Time Reduction:").apply {
+            children.add("Time Reduction:".label().apply {
                 style = KatUIConfig.styleLabelSecondaryBold
             })
 
@@ -314,10 +298,9 @@ private fun createRaritySection(rarity: String, price: Double?, source: PriceSou
         }
     }
 
-    private fun createReductionRow(label: String, cost: Double, isExcluded: Boolean) = HBox(KatUIConfig.spacingSmall).apply {
-        alignment = Pos.CENTER_LEFT
+    private fun createReductionRow(label: String, cost: Double, isExcluded: Boolean) = hbox(KatUIConfig.spacingSmall) {
         children.addAll(
-            Label(label).apply {
+            label.label().apply {
                 style = KatUIConfig.styleLabelSmallYellow
             },
             spacer(),
@@ -331,17 +314,16 @@ private fun createRaritySection(rarity: String, price: Double?, source: PriceSou
         )
     }
 
-    private fun createPreviousTierDisplay(card: KatUpgradeCard, isExcluded: Boolean) = HBox(KatUIConfig.spacingSmall).apply {
-        alignment = Pos.CENTER_LEFT
+    private fun createPreviousTierDisplay(card: KatUpgradeCard, isExcluded: Boolean) = hbox(KatUIConfig.spacingSmall) {
         children.addAll(
-            Label("Previous Tier Cost:").apply {
+            "Previous Tier Cost:".label().apply {
                 style = KatUIConfig.styleLabelSmall
             },
             if (!isExcluded && card.previousTierSource != PriceSource.UNKNOWN) {
-                Label(card.previousTierSource.name).apply {
+                card.previousTierSource.name.label().apply {
                     style = "${KatUIConfig.styleBadgeSource} -fx-text-fill: ${if (card.previousTierSource == PriceSource.AH) KatUIConfig.accentBlue else KatUIConfig.accentWarning}; ${KatUIConfig.styleLabelExtraSmallBold}"
                 }
-            } else Label(),
+            } else "".label(),
             spacer(),
             valueLabel(
                 value = card.previousTierCost,
@@ -353,9 +335,10 @@ private fun createRaritySection(rarity: String, price: Double?, source: PriceSou
         )
     }
 
-    private fun createProfitSummary(card: KatUpgradeCard, isExcluded: Boolean) = VBox(KatUIConfig.spacingSmall / 1.5).apply {
+    private fun createProfitSummary(card: KatUpgradeCard, isExcluded: Boolean) = vbox(KatUIConfig.spacingSmall / 1.5) {
+        val totalCostLabel = if (card.isCraftOnly) "Total Craft Cost:" else "Total Cost:"
         children.addAll(
-            createSummaryRow("Total Cost:", card.totalCost, KatUIConfig.formatPrice, KatUIConfig.costRed, isExcluded),
+            createSummaryRow(totalCostLabel, card.totalCost, KatUIConfig.formatPrice, KatUIConfig.costRed, isExcluded),
             createSummaryRow("Expected Profit:", card.expectedProfit, KatUIConfig.formatPrice, if (!isExcluded && card.expectedProfit > 0) KatUIConfig.accentGreen else if (!isExcluded && card.expectedProfit < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true),
             createSummaryRow("Margin:", card.profitMargin, KatUIConfig.formatPercent, if (!isExcluded && card.profitMargin > 0) KatUIConfig.accentGreen else if (!isExcluded && card.profitMargin < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded, true),
             createSummaryRow("Market Profit/hr:", card.expectedHourlyMarketProfit ?: 0.0, KatUIConfig.formatPrice, if (!isExcluded && (card.expectedHourlyMarketProfit ?: 0.0) > 0) KatUIConfig.accentGreen else if (!isExcluded && (card.expectedHourlyMarketProfit ?: 0.0) < 0) KatUIConfig.accentRed else KatUIConfig.labelColorSecondary, isExcluded || card.expectedHourlyMarketProfit == null, true)

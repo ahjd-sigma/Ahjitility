@@ -1,28 +1,30 @@
 package ui.shard
 
-import business.shard.*
-import calculator.*
-import javafx.scene.layout.*
-import javafx.scene.control.*
-import javafx.geometry.*
+import business.shard.ShardCalculations
+import business.shard.ShardDataLoader
+import business.shard.ShardInfo
+import calculator.BaseCalculator
+import calculator.GenericListView
 import javafx.application.Platform
-import utils.PriceFetcher
-import utils.Styles
-import utils.GeneralConfig
-import utils.ShardUIConfig
-import utils.text
-import utils.applyDarkStyle
-import utils.enableAdvancedScrolling
+import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.Node
-import javafx.scene.image.ImageView
+import javafx.scene.control.*
 import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.layout.*
 import kotlinx.coroutines.*
+import utils.*
 
 class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     private val controls = ShardControls()
     private val listView = GenericListView<ShardInfo>({ GeneralConfig.shardScrollMultiplier }) { createShardCell(it) }
     private val sidebar = ShardSidebar()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    override fun createTopBar(onBack: () -> Unit) = super.createTopBar(onBack).apply {
+        children.add(0, "Shard Grinding Calculator".label(color = Styles.ACCENT, size = 18, bold = true))
+    }
 
     private var allShards = emptyList<ShardInfo>()
     private var currentRates = mutableMapOf<String, Double>()
@@ -33,7 +35,7 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
         listView.listView,
         ScrollPane(sidebar.node).apply {
             applyDarkStyle()
-            enableAdvancedScrolling({ GeneralConfig.shardScrollMultiplier })
+            enableAdvancedScrolling { GeneralConfig.shardScrollMultiplier }
             isFitToWidth = true
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
         }
@@ -64,78 +66,73 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
         Platform.runLater { loading.set(true) }
         scope.launch {
             try {
-                println("[DEBUG] Shard: Starting refreshData")
+                Log.debug(this@ShardGrindingCalculator, "Starting refreshData")
                 val rates = ShardDataLoader.loadRates()
-                println("[DEBUG] Shard: Loaded ${rates.size} rates. Keys: ${rates.keys}")
+                Log.debug(this@ShardGrindingCalculator, "Loaded ${rates.size} rates. Keys: ${rates.keys}")
                 currentRates = rates.toMutableMap()
                 
                 val chestPrices = ShardDataLoader.loadChestPrices()
-                println("[DEBUG] Shard: Loaded ${chestPrices.size} chest prices")
+                Log.debug(this@ShardGrindingCalculator, "Loaded ${chestPrices.size} chest prices")
                 currentChestPrices = chestPrices.toMutableMap()
 
                 val baitCounts = ShardDataLoader.loadBaitCounts()
-                println("[DEBUG] Shard: Loaded ${baitCounts.size} bait counts")
+                Log.debug(this@ShardGrindingCalculator, "Loaded ${baitCounts.size} bait counts")
                 currentBaitCounts = baitCounts.toMutableMap()
 
-                println("[DEBUG] Shard: Fetching prices...")
+                Log.debug(this@ShardGrindingCalculator, "Fetching prices...")
                 try {
                     withTimeout(15000) { // 15s timeout
                         priceFetcher.fetchAllPrices()
                     }
                 } catch (e: Exception) {
-                    println("[ERROR] Shard: Price fetch failed or timed out: ${e.message}")
+                    Log.debug(this@ShardGrindingCalculator, "Price fetch failed or timed out", e)
                 }
 
                 val properties = ShardDataLoader.loadProperties()
-                println("[DEBUG] Shard: Loaded ${properties.size} properties")
+                Log.debug(this@ShardGrindingCalculator, "Loaded ${properties.size} properties")
                 
                 val priceIds = ShardCalculations.getPriceIds(rates, properties)
-                println("[DEBUG] Shard: Resolved ${priceIds.size} price IDs")
+                Log.debug(this@ShardGrindingCalculator, "Resolved ${priceIds.size} price IDs")
                 
                 val isInstant = controls.isInstantSell
-                println("[DEBUG] Shard: Fetching individual prices (isInstant=$isInstant)...")
+                Log.debug(this@ShardGrindingCalculator, "Fetching individual prices (isInstant=$isInstant)...")
                 val prices = priceIds.associate { (shardId, itemId) ->
                     try {
                         val price = priceFetcher.getSellPrice(itemId, isInstant).price
-                        if (price == 0.0) {
-                            // println("[INFO] Shard: Price is 0.0 for $shardId ($itemId)")
-                        }
                         shardId to price
                     } catch (e: Exception) {
-                        println("[ERROR] Shard: Failed to get price for $shardId ($itemId): ${e.message}")
+                        Log.debug(this@ShardGrindingCalculator, "Failed to get price for $shardId ($itemId)", e)
                         shardId to 0.0
                     }
                 }
-                println("[DEBUG] Shard: Fetched ${prices.size} prices")
+                Log.debug(this@ShardGrindingCalculator, "Fetched ${prices.size} prices")
 
                 val baitPrice = try {
                     priceFetcher.getBuyPrice("WOODEN_BAIT", isInstant).price
                 } catch (e: Exception) {
-                    println("[ERROR] Shard: Failed to get bait price: ${e.message}")
+                    Log.debug(this@ShardGrindingCalculator, "Failed to get bait price", e)
                     0.0
                 }
 
-                println("[DEBUG] Shard: Combining data...")
+                Log.debug(this@ShardGrindingCalculator, "Combining data...")
                 allShards = ShardCalculations.combineData(
                     rates, properties, prices, controls.sellMode, controls.hunterFortune, 
                     currentChestPrices, currentBaitCounts, baitPrice
                 )
                 
-                println("[DEBUG] Shard: Updating UI with ${allShards.size} shards")
+                Log.debug(this@ShardGrindingCalculator, "Updating UI with ${allShards.size} shards")
                 Platform.runLater {
                     try {
                         updateUI()
                         loading.set(false)
-                        println("[DEBUG] Shard: UI Update complete")
+                        Log.debug(this@ShardGrindingCalculator, "UI Update complete")
                     } catch (e: Exception) {
-                        println("[ERROR] Shard UI update failed: ${e.message}")
-                        e.printStackTrace()
+                        Log.debug(this@ShardGrindingCalculator, "Shard UI update failed", e)
                         loading.set(false)
                     }
                 }
             } catch (e: Exception) {
-                println("[ERROR] Shard refresh failed: ${e.message}")
-                e.printStackTrace()
+                Log.debug(this@ShardGrindingCalculator, "Shard refresh failed", e)
                 Platform.runLater { loading.set(false) }
             }
         }
@@ -145,11 +142,20 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
         val search = controls.searchText
         val fortune = controls.hunterFortune
         
+        val searchQueries = search.split(",").map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+        
         val filtered = allShards
             .map { it.copy(hunterFortune = fortune) }
-            .filter {
-                it.displayName.contains(search, ignoreCase = true) ||
-                        it.shardId.contains(search, ignoreCase = true)
+            .filter { shard ->
+                if (searchQueries.isEmpty()) return@filter true
+                
+                val cleanName = shard.displayName.lowercase().replace("_", " ")
+                val rawName = shard.displayName.lowercase()
+                val shardId = shard.shardId.lowercase()
+                
+                searchQueries.any { query ->
+                    cleanName.contains(query) || rawName.contains(query) || shardId.contains(query)
+                }
             }
             .let { list ->
                 when (controls.sortMode) {
@@ -208,9 +214,8 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
     }
 
     private fun createShardCell(shard: ShardInfo): Node = try {
-        HBox(10.0).apply {
+        hbox {
             padding = Insets(8.0, 10.0, 8.0, 10.0)
-            alignment = Pos.CENTER_LEFT
 
             val rarityColor = getRarityColor(shard.rarity)
             val sellSuffix = if (shard.sellMode == "Instant Sell") "(SI)" else "(SO)"
@@ -232,22 +237,20 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
 
             children.addAll(
                 imageView,
-                VBox(4.0).apply {
+                vbox(4.0) {
                     children.addAll(
-                        Label(shard.displayName).apply { style = "-fx-text-fill: $rarityColor; -fx-font-weight: bold; -fx-font-size: 14px;" },
-                        Label("${shard.rarity} Shard").apply { style = "-fx-text-fill: #888888; -fx-font-size: 11px;" }
+                        shard.displayName.label(color = rarityColor, bold = true, size = "14px"),
+                        "${shard.rarity} Shard".label(color = "#888888", size = "11px")
                     )
                 },
-                Region().apply { HBox.setHgrow(this, Priority.ALWAYS) },
-                VBox(4.0).apply {
-                    alignment = Pos.CENTER_RIGHT
+                spacer(),
+                vbox(4.0, alignment = Pos.CENTER_RIGHT) {
                     children.addAll(
-                        Label(String.format("%,.0f/hr", shard.profitPerHour)).apply { style = "-fx-text-fill: #ffaa00; -fx-font-weight: bold; -fx-font-size: 14px;" },
-                        HBox(4.0).apply {
-                            alignment = Pos.CENTER_RIGHT
+                        String.format("%,.0f/hr", shard.profitPerHour).label(color = "#ffaa00", bold = true, size = "14px"),
+                        hbox(4.0, alignment = Pos.CENTER_RIGHT) {
                             children.addAll(
-                                Label(String.format("%,.2f shards/hr", shard.effectiveRatePerHour)).apply { style = "-fx-text-fill: #aaaaaa; -fx-font-size: 11px;" },
-                                Label("${String.format("%,.0f", shard.price)} coins $sellSuffix").apply { style = "-fx-text-fill: #888888; -fx-font-size: 11px;" }
+                                String.format("%,.2f shards/hr", shard.effectiveRatePerHour).label(color = "#aaaaaa", size = "11px"),
+                                "${String.format("%,.0f", shard.price)} coins $sellSuffix".label(color = "#888888", size = "11px")
                             )
                         }
                     )
@@ -255,8 +258,8 @@ class ShardGrindingCalculator(priceFetcher: PriceFetcher) : BaseCalculator(price
             )
         }
     } catch (e: Exception) {
-        println("[ERROR] Failed to create shard cell for ${shard.shardId}: ${e.message}")
-        Label("Error loading ${shard.displayName}")
+        Log.debug(this, "Failed to create shard cell for ${shard.shardId}", e)
+        "Error loading ${shard.displayName}".label()
     }
 
     private fun getRarityColor(rarity: String) = when (rarity.uppercase()) {

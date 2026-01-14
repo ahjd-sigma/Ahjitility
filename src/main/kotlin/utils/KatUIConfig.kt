@@ -24,12 +24,9 @@ object KatUIConfig : BaseConfig("kat_ui.yaml") {
     val accentBlue get() = GeneralConfig.colorAccentBlue
     val accentGreen get() = GeneralConfig.colorAccentGreen
     val accentRed get() = GeneralConfig.colorAccentRed
-    val accentOrange get() = GeneralConfig.colorAccentOrange
     val accentWarning get() = GeneralConfig.colorAccentOrange
     val accentCyan get() = GeneralConfig.colorAccentCyan
     val accentMagenta get() = GeneralConfig.colorAccentMagenta
-    val colorFieldBg get() = GeneralConfig.colorFieldBg
-    val colorButtonBg get() = GeneralConfig.colorButtonBg
 
     // Sizes and Spacing
     var fontSizeExtraSmall: Double = 11.0
@@ -86,14 +83,12 @@ object KatUIConfig : BaseConfig("kat_ui.yaml") {
     var controlSpacing: Double = 15.0
     var controlGroupSpacing: Double = 20.0
     var labelSpacing: Double = 5.0
-    var sidebarWidth: Double = 300.0
     
     // Formats
     var formatDuration: String = "%.1fh"
     var formatCoins: String = "%,.0f"
     var formatPrice: String = "%,.0f"
     var formatPercent: String = "%.1f%%"
-    var formatSales: String = "%.1f"
 
     // Controls
     var searchFieldWidth: Double = 200.0
@@ -154,7 +149,6 @@ object KatUIConfig : BaseConfig("kat_ui.yaml") {
         register(::controlSpacing, "control_spacing", validate = spacingRange)
         register(::controlGroupSpacing, "control_group_spacing", validate = spacingRange)
         register(::labelSpacing, "label_spacing", validate = spacingRange)
-        register(::sidebarWidth, "sidebar_width", validate = range(100.0, 600.0))
         register(::searchFieldWidth, "search_field_width", validate = sizeRange)
         register(::sortByWidth, "sort_by_width", validate = sizeRange)
         register(::rarityFilterWidth, "rarity_filter_width", validate = sizeRange)

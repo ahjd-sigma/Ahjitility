@@ -3,16 +3,13 @@ import javafx.application.Application
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.Label
 import javafx.scene.layout.*
 import javafx.stage.Stage
 import ui.forge.ForgeCalculator
 import ui.shard.ShardGrindingCalculator
 import ui.kat.KatCalculator
 import ui.settings.SettingsUI
-import utils.PriceFetcher
-import utils.Styles
+import utils.*
 
 class MainApp : Application() {
     private lateinit var primaryStage: Stage
@@ -29,41 +26,31 @@ class MainApp : Application() {
     }
 
     private fun createMainMenu(): Scene {
-        val root = VBox(20.0).apply {
-            alignment = Pos.CENTER
+        val root = vbox(20.0, alignment = Pos.CENTER) {
             padding = Insets(40.0)
             
             style = """
                 -fx-background-color: ${Styles.DARK_BG};
-                -fx-accent-color: ${utils.GeneralConfig.colorAccentBlue};
-                -fx-dark-bg: ${utils.GeneralConfig.colorDarkBg};
-                -fx-darker-bg: ${utils.GeneralConfig.colorDarkerBg};
-                -fx-text-primary: ${utils.GeneralConfig.colorTextPrimary};
-                -fx-field-bg: ${utils.GeneralConfig.colorFieldBg};
-                -fx-button-bg: ${utils.GeneralConfig.colorButtonBg};
-                -fx-border-color-global: ${utils.GeneralConfig.colorBorder};
+                -fx-accent-color: ${GeneralConfig.colorAccentBlue};
+                -fx-dark-bg: ${GeneralConfig.colorDarkBg};
+                -fx-darker-bg: ${GeneralConfig.colorDarkerBg};
+                -fx-text-primary: ${GeneralConfig.colorTextPrimary};
+                -fx-field-bg: ${GeneralConfig.colorFieldBg};
+                -fx-button-bg: ${GeneralConfig.colorButtonBg};
+                -fx-border-color-global: ${GeneralConfig.colorBorder};
             """.trimIndent()
 
             children.addAll(
-                VBox(5.0).apply {
-                    alignment = Pos.CENTER
+                vbox(5.0, alignment = Pos.CENTER) {
                     children.addAll(
-                        Label("Ahjitility").apply {
-                            style = """
-                                -fx-text-fill: aqua; 
-                                -fx-font-size: 32px; 
-                                -fx-font-weight: bold;
-                                -fx-effect: dropshadow(three-pass-box, rgba(0,255,255,0.8), 15, 0, 0, 0);
-                            """.trimIndent()
+                        "Ahjitility".label(color = "aqua", size = "32px", bold = true).apply {
+                            style += " -fx-effect: dropshadow(three-pass-box, rgba(0,255,255,0.8), 15, 0, 0, 0);"
                         },
-                        Label("Skyblock Utility Calculators").apply {
-                            style = "-fx-text-fill: #888888; -fx-font-size: 14px;"
-                        }
+                        "Skyblock Utility Calculators".label(color = "#888888", size = "14px")
                     )
                 },
                 
-                VBox(15.0).apply {
-                    alignment = Pos.CENTER
+                vbox(15.0, alignment = Pos.CENTER) {
                     maxWidth = 400.0
                     
                     children.addAll(
@@ -81,9 +68,7 @@ class MainApp : Application() {
                     VBox.setVgrow(this, Priority.ALWAYS)
                 },
 
-                Label("v${utils.GeneralConfig.VERSION}").apply {
-                    style = "-fx-text-fill: #555555; -fx-font-size: 12px;"
-                }
+                "v${GeneralConfig.VERSION}".label(color = "#555555", size = "12px")
             )
         }
 
@@ -92,9 +77,9 @@ class MainApp : Application() {
         }
     }
 
-    private fun createMenuButton(title: String, desc: String, action: () -> Unit = {}) = Button().apply {
+    private fun createMenuButton(title: String, desc: String, action: () -> Unit = {}) = "".button().apply {
         maxWidth = Double.MAX_VALUE
-        val baseColor = utils.GeneralConfig.colorButtonBg
+        val baseColor = GeneralConfig.colorButtonBg
         val hoverColor = "#4a4d50" // We could also make this dynamic
         
         style = """
@@ -102,10 +87,10 @@ class MainApp : Application() {
             -fx-background-radius: 8; -fx-cursor: hand; -fx-alignment: center-left;
         """.trimIndent()
         
-        graphic = VBox(5.0).apply {
+        graphic = vbox(5.0) {
             children.addAll(
-                Label(title).apply { style = "-fx-text-fill: ${Styles.ACCENT}; -fx-font-size: 16px; -fx-font-weight: bold;" },
-                Label(desc).apply { style = "-fx-text-fill: #888888; -fx-font-size: 12px;" }
+                title.label(color = Styles.ACCENT, size = "16px", bold = true),
+                desc.label(color = "#888888", size = "12px")
             )
         }
         setOnAction { action() }

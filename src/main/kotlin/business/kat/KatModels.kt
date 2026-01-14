@@ -22,19 +22,14 @@ data class KatResult(
     val materialCost: Double,
     val profit: Double,
     val profitPerHour: Double
-) {
-    val totalCost = recipe.cost + materialCost + startPrice
-}
+)
 
 data class KatFamilyResult(
     val family: KatFamily,
     val results: List<KatResult>,
     val upgradeCards: List<KatUpgradeCard> = emptyList(),
     val isExcluded: Boolean = false
-) {
-    val totalProfit = results.filter { it.profit > 0 }.sumOf { it.profit }
-    val totalUpgradeProfit = upgradeCards.sumOf { it.expectedProfit } // New calculation
-}
+)
 
 enum class PriceSource { AH, CRAFT, UNKNOWN }
 

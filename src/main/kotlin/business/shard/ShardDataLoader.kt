@@ -2,6 +2,7 @@ package business.shard
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import utils.Log
 import java.io.File
 import utils.ResourceLoader
 
@@ -17,7 +18,7 @@ object ShardDataLoader {
         return try {
             gson.fromJson(file.readText(), object : TypeToken<Map<String, Double>>() {}.type) ?: emptyMap()
         } catch (e: Exception) {
-            println("ERROR: Failed to load chest prices: ${e.message}")
+            Log.debug(this, "Failed to load chest prices", e)
             emptyMap()
         }
     }
@@ -28,7 +29,7 @@ object ShardDataLoader {
         return try {
             gson.fromJson(file.readText(), object : TypeToken<Map<String, Double>>() {}.type) ?: emptyMap()
         } catch (e: Exception) {
-            println("ERROR: Failed to load bait counts: ${e.message}")
+            Log.debug(this, "Failed to load bait counts", e)
             emptyMap()
         }
     }
@@ -42,8 +43,9 @@ object ShardDataLoader {
             file.parentFile.mkdirs()
             val json = gson.newBuilder().setPrettyPrinting().create().toJson(prices)
             file.writeText(json)
+            Log.debug(this, "Saved chest prices")
         } catch (e: Exception) {
-            println("ERROR: Failed to save chest prices: ${e.message}")
+            Log.debug(this, "Failed to save chest prices", e)
         }
     }
 
@@ -53,8 +55,9 @@ object ShardDataLoader {
             file.parentFile.mkdirs()
             val json = gson.newBuilder().setPrettyPrinting().create().toJson(counts)
             file.writeText(json)
+            Log.debug(this, "Saved bait counts")
         } catch (e: Exception) {
-            println("ERROR: Failed to save bait counts: ${e.message}")
+            Log.debug(this, "Failed to save bait counts", e)
         }
     }
 
@@ -67,15 +70,21 @@ object ShardDataLoader {
             javaClass.getResource(resourcePath)?.let {
                 if (it.protocol == "file") {
                     File(it.toURI()).writeText(json)
+                    Log.debug(this, "Saved rates to resource file")
                     return
                 }
             }
 
             // Try dev path
-            File("src/main/resources$resourcePath").takeIf { it.exists() }?.writeText(json)
-                ?: println("ERROR: Could not save rates.json")
+            val devFile = File("src/main/resources$resourcePath")
+            if (devFile.exists()) {
+                devFile.writeText(json)
+                Log.debug(this, "Saved rates to dev path")
+            } else {
+                Log.debug(this, "Could not save rates.json - file not found")
+            }
         } catch (e: Exception) {
-            println("ERROR: Failed to save rates: ${e.message}")
+            Log.debug(this, "Failed to save rates", e)
         }
     }
 }

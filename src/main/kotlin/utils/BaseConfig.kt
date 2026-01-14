@@ -17,7 +17,6 @@ abstract class BaseConfig(fileName: String) {
 
     protected class ConfigProp<T>(
         val property: KMutableProperty0<T>,
-        val yamlKey: String,
         val loadTransform: ((Any?) -> T)? = null,
         val saveTransform: ((T) -> Any?)? = null,
         val validate: ((T) -> T)? = null
@@ -69,7 +68,7 @@ abstract class BaseConfig(fileName: String) {
         saveTransform: ((T) -> Any?)? = null,
         validate: ((T) -> T)? = null
     ) {
-        registeredProperties[yamlKey] = ConfigProp(property, yamlKey, loadTransform, saveTransform, validate)
+        registeredProperties[yamlKey] = ConfigProp(property, loadTransform, saveTransform, validate)
     }
 
     /**
@@ -100,7 +99,7 @@ abstract class BaseConfig(fileName: String) {
                 saveConfig() // Ensure file is updated with new defaults or corrected values
             }
         } catch (e: Exception) {
-            System.err.println("Error loading config ${configFile.name}: ${e.message}")
+            Log.debug(this, "Error loading config ${configFile.name}", e)
             saveConfig()
         }
     }
@@ -112,7 +111,7 @@ abstract class BaseConfig(fileName: String) {
                 try {
                     prop.apply(yamlValue)
                 } catch (e: Exception) {
-                    System.err.println("Failed to apply config key '$key' in ${configFile.name}: ${e.message}")
+                    Log.debug(this, "Failed to apply config key '$key' in ${configFile.name}", e)
                 }
             }
         }
@@ -148,7 +147,7 @@ abstract class BaseConfig(fileName: String) {
             val yaml = Yaml(options)
             FileWriter(configFile).use { it.write(yaml.dump(configMap)) }
         } catch (e: Exception) {
-            System.err.println("Error saving config ${configFile.name}: ${e.message}")
+            Log.debug(this, "Error saving config ${configFile.name}", e)
         }
     }
 

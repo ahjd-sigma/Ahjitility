@@ -1,14 +1,13 @@
 package calculator
 
-import javafx.scene.Scene
-import javafx.scene.control.*
-import javafx.scene.layout.*
-import javafx.geometry.*
 import javafx.beans.property.SimpleBooleanProperty
-import utils.PriceFetcher
-import utils.Styles
-import utils.ConfigEvents
-import utils.GeneralConfig
+import javafx.geometry.Insets
+import javafx.scene.Scene
+import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
+import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
+import utils.*
 
 abstract class BaseCalculator(protected val priceFetcher: PriceFetcher) : Calculator {
     override val preferredWidth = 900.0
@@ -43,11 +42,13 @@ abstract class BaseCalculator(protected val priceFetcher: PriceFetcher) : Calcul
         val controls = createControls()
         val overlay = createOverlay()
 
-        val container = VBox(
-            createTopBar(onBack),
-            controls,
-            content.apply { VBox.setVgrow(this, Priority.ALWAYS) }
-        )
+        val container = vbox(0.0) {
+            children.addAll(
+                createTopBar(onBack),
+                controls,
+                content.apply { VBox.setVgrow(this, Priority.ALWAYS) }
+            )
+        }
         mainContainer = container
 
         val root = StackPane(
@@ -72,16 +73,18 @@ abstract class BaseCalculator(protected val priceFetcher: PriceFetcher) : Calcul
     protected abstract fun createControls(): Region
     protected open fun createOverlay(): Region? = null
 
-    protected open fun createTopBar(onBack: () -> Unit) = HBox(10.0).apply {
-        alignment = Pos.CENTER_LEFT
+    protected open fun createTopBar(onBack: () -> Unit) = hbox(10.0) {
         padding = Insets(10.0)
-        children.add(Button("← Main Menu").apply {
-            style = "-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-padding: 8 16; -fx-cursor: hand; -fx-background-radius: 5;"
-            setOnAction { onBack() }
-        })
+        alignment = javafx.geometry.Pos.CENTER_LEFT
+        children.addAll(
+            spacer(),
+            "← Main Menu".button(onClick = { onBack() }).apply {
+                style = "-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-padding: 8 16; -fx-cursor: hand; -fx-background-radius: 5;"
+            }
+        )
     }
 
-    private fun createLoadingOverlay() = Label("Loading...").apply {
+    private fun createLoadingOverlay() = "Loading...".label().apply {
         style = "-fx-background-color: rgba(0,0,0,0.7); -fx-text-fill: orange; -fx-padding: 20; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 18;"
         visibleProperty().bind(loading)
         isMouseTransparent = true

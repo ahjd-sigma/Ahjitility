@@ -1,15 +1,14 @@
 package ui.kat
 
-import calculator.BaseCalculator
 import business.kat.*
-import utils.*
-import javafx.scene.layout.VBox
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.Region
+import calculator.BaseCalculator
+import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.application.Platform
+import javafx.scene.layout.Region
+import javafx.scene.layout.StackPane
 import kotlinx.coroutines.*
+import utils.*
 
 class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     private val listView = KatListView { familyName ->
@@ -17,13 +16,11 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         applySortingAndFiltering()
     }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var refreshJob: Job? = null
+    private val taskQueue = TaskQueue(scope)
     private var uiUpdateJob: Job? = null
-    private var salesJob: Job? = null
-
+    
     private val timeReducer = KatTimeReducer()
     private var rawResults = listOf<KatFamilyResult>()
-    private var salesProgress = 0.0
     private var isRecipeFetching = false
 
     // Overlay Progress Bars
@@ -77,24 +74,33 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         width = KatUIConfig.searchFieldWidth,
         onChange = { 
             // Debounce search input
-            refreshJob?.cancel()
-            refreshJob = scope.launch {
+            taskQueue.submitUnique("SEARCH") {
                 delay(300) // Default search debounce
                 applySortingAndFiltering()
             }
         }
     )
 
-    private val refreshButton = button(
-        text = "Refresh Prices",
-        onClick = { refreshData(force = true) }
+    private val refreshButton = "Refresh Prices".button(
+        onClick = { 
+            Log.debug(this, "Manual price refresh triggered")
+            refreshData(includeSales = false) 
+        }
     )
 
-    private val refreshCraftsButton = button(
-        text = "Refresh Crafts",
+    private val refreshCraftsButton = "Refresh Crafts".button(
         onClick = {
+            Log.debug(this, "Manual craft cache clear and refresh triggered")
             KatCalculations.recipeFetcher.clearCache()
-            refreshData(force = true)
+            refreshData(includeSales = false)
+        }
+    )
+
+    private val refreshSalesButton = "Refresh Sales".button(
+        onClick = {
+            Log.debug(this, "Manual sales refresh triggered")
+            priceFetcher.clearSalesCache()
+            startSalesFetch()
         }
     )
 
@@ -104,48 +110,48 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     }
 
     override fun createTopBar(onBack: () -> Unit) = super.createTopBar(onBack).apply {
-        children.addAll(
-            separator(),
-            label(
-                text = "Kat Calculator",
-                color = KatUIConfig.labelColorPrimary,
-                size = KatUIConfig.fontSizeTitle,
-                bold = true
-            )
-        )
+        children.add(0, "Kat Calculator".label(color = Styles.ACCENT, size = 18, bold = true))
     }
 
-    override fun createControls() = javafx.scene.layout.HBox(10.0).apply {
-        padding = Insets(KatUIConfig.mainPadding)
-        alignment = Pos.CENTER_LEFT
-        style = "-fx-background-color: ${GeneralConfig.colorDarkBg}; -fx-border-color: ${GeneralConfig.colorDarkerBg}; -fx-border-width: 0 0 1 0;"
-
-        searchField.prefWidth = 350.0 // Expanded search field
+    override fun createControls() = hbox(20.0) {
+        padding = Insets(12.0)
+        style = "-fx-background-color: ${Styles.DARK_BG}; -fx-border-color: #333333; -fx-border-width: 0 0 1 0;"
 
         children.addAll(
-            "Search:".label(Styles.label),
-            searchField,
-            separator(),
-            "Sort:".label(Styles.label), sortByComboBox,
-            "Rarity:".label(Styles.label), rarityFilterComboBox,
-            "Buy:".label(Styles.label), buyModeComboBox,
-            "BZ %:".label(Styles.label), bazaarTaxField,
-            "AH x:".label(Styles.label), ahTaxMultiplierField,
+            vbox(2.0) {
+                children.addAll("Search".label(color = "#888888", size = 10, bold = true), searchField)
+            },
+            vbox(2.0) {
+                children.addAll("Sort".label(color = "#888888", size = 10, bold = true), sortByComboBox)
+            },
+            vbox(2.0) {
+                children.addAll("Rarity".label(color = "#888888", size = 10, bold = true), rarityFilterComboBox)
+            },
+            vbox(2.0) {
+                children.addAll("Market".label(color = "#888888", size = 10, bold = true), buyModeComboBox)
+            },
+            vbox(2.0) {
+                children.addAll("BZ % / AH x".label(color = "#888888", size = 10, bold = true), hbox(5.0) { children.addAll(bazaarTaxField, ahTaxMultiplierField) })
+            },
             
             // Center: Spacer to push buttons to the right
             spacer(),
 
             // Right Side: Action Buttons
-            refreshButton,
-             refreshCraftsButton
-         )
+            vbox(2.0) {
+                alignment = Pos.BOTTOM_LEFT
+                children.add(hbox(8.0) {
+                    children.addAll(refreshButton, refreshCraftsButton, refreshSalesButton)
+                })
+            }
+        )
 
-         // Start data refresh after UI is created
-         Platform.runLater {
-             refreshData(force = true)
-             startProgressPolling()
-         }
-     }
+        // Start data refresh after UI is created
+        Platform.runLater {
+            refreshData()
+            startProgressPolling()
+        }
+    }
 
     override fun createOverlay() = StackPane().apply {
         isMouseTransparent = true
@@ -162,14 +168,14 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     }
 
     private fun startProgressPolling() {
-        println("[DEBUG] KatCalculator: Starting progress polling coroutine")
+        Log.debug(this, "Starting progress polling coroutine")
         scope.launch {
             while (isActive) {
                 val progress = KatCalculations.recipeFetcher.getProgress()
                 val hasPending = KatCalculations.recipeFetcher.hasPendingRequests()
                 
                 if (hasPending || progress < 1.0) {
-                    println("[DEBUG] KatCalculator: Craft Progress: ${String.format("%.2f", progress)} (Pending: $hasPending)")
+                    Log.debug(this@KatCalculator, "Craft Progress: ${String.format("%.2f", progress)} (Pending: $hasPending)")
                 }
                 
                 Platform.runLater {
@@ -179,7 +185,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                         if (!craftProgressBar.isVisible) {
                             salesProgressBar.isVisible = false
                             craftProgressBar.isVisible = true
-                            println("[DEBUG] KatCalculator: Showing craftProgressBar (hiding salesProgressBar)")
+                            Log.debug(this@KatCalculator, "Showing craftProgressBar (hiding salesProgressBar)")
                         }
                     } else if (progress >= 1.0 && !hasPending) {
                         if (craftProgressBar.isVisible) {
@@ -191,7 +197,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                 if (progress >= 1.0 && !hasPending && craftProgressBar.isVisible) {
                     delay(1500)
                     Platform.runLater { 
-                        println("[DEBUG] KatCalculator: Hiding craftProgressBar after completion")
+                        Log.debug(this@KatCalculator, "Hiding craftProgressBar after completion")
                         craftProgressBar.isVisible = false
                         // Sales fetch usually starts after this, and it will handle its own visibility
                     }
@@ -225,7 +231,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     private fun recalculateResults() {
         if (rawResults.isEmpty()) return
         
-        scope.launch {
+        taskQueue.submit("RECALCULATE") {
             rawResults = rawResults.map { familyResult ->
                 val updatedCards = familyResult.family.recipes.flatMap { recipe ->
                     KatCalculations.calculateUpgradeCard(
@@ -242,18 +248,20 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         }
     }
 
-    private fun refreshData(force: Boolean = false) {
-        if (force) {
+    private fun refreshData(includeSales: Boolean = true) {
+        taskQueue.submit("REFRESH") {
+            Log.debug(this@KatCalculator, "Starting data refresh (includeSales=$includeSales)")
             Platform.runLater { loading.set(true) }
             KatCalculations.recipeFetcher.resetProgress()
             isRecipeFetching = true
-        }
-        scope.launch {
+
             try {
-                if (force) priceFetcher.fetchAllPrices(force = true)
+                Log.debug(this@KatCalculator, "Fetching all prices...")
+                priceFetcher.fetchAllPrices(force = true)
                 
                 // Load data (this might do network call if file missing)
                 val families = KatDataLoader.load()
+                Log.debug(this@KatCalculator, "Processing ${families.size} families")
 
                 val results = families.map { family ->
                     val upgradeCards = family.recipes.flatMap { recipe ->
@@ -271,29 +279,35 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                 Platform.runLater {
                     rawResults = results
                     applySortingAndFiltering()
-                    if (force) loading.set(false)
+                    loading.set(false)
                 }
 
                 // Sequential Fetching: 1. Recipes (handled by calculateUpgradeCard calls)
-                // 2. Wait for Recipes to finish, then start Sales
-                if (force) {
-                    while (KatCalculations.recipeFetcher.hasPendingRequests()) {
-                        delay(500)
-                    }
-                    isRecipeFetching = false
+                // 2. Wait for Recipes to finish, then start Sales (if requested)
+                Log.debug(this@KatCalculator, "Waiting for pending recipe requests...")
+                while (KatCalculations.recipeFetcher.hasPendingRequests()) {
+                    delay(500)
+                }
+                
+                isRecipeFetching = false
+                
+                if (includeSales) {
+                    Log.debug(this@KatCalculator, "All recipes fetched, starting sales fetch")
+                    priceFetcher.clearSalesCache()
                     startSalesFetch()
+                } else {
+                    Log.debug(this@KatCalculator, "All recipes fetched, skipping sales fetch as requested")
                 }
             } catch (e: Exception) {
-                if (force) {
-                    isRecipeFetching = false
-                    Platform.runLater { loading.set(false) }
-                }
+                Log.debug(this@KatCalculator, "Critical failure during refreshData", e)
+                isRecipeFetching = false
+                Platform.runLater { loading.set(false) }
             }
         }
     }
 
     private fun updateFamilyResult(family: KatFamily) {
-        scope.launch {
+        taskQueue.submit("DATA_UPDATE_${family.name}") {
             val updatedCards = family.recipes.flatMap { recipe ->
                 KatCalculations.calculateUpgradeCard(
                     recipe, family, priceFetcher, timeReducer, isBazaarInstant,
@@ -316,16 +330,14 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     }
 
     private fun triggerUIUpdate() {
-        uiUpdateJob?.cancel()
-        uiUpdateJob = scope.launch {
+        taskQueue.submitUnique("UI_UPDATE") {
             delay(KatUIConfig.uiUpdateDebounceMs) // Debounce UI updates slightly to batch rapid changes
             applySortingAndFiltering()
         }
     }
 
     private fun startSalesFetch() {
-        salesJob?.cancel()
-        salesJob = scope.launch {
+        taskQueue.submit("SALES") {
             // Get unique base IDs for pets
             val baseIdsToFetch = rawResults.flatMap { familyResult ->
                 familyResult.upgradeCards.map { card ->
@@ -333,7 +345,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
                 }
             }.distinct()
 
-            if (baseIdsToFetch.isEmpty()) return@launch
+            if (baseIdsToFetch.isEmpty()) return@submit
 
             // Wait for craft progress bar to hide if it's currently showing
             while (craftProgressBar.isVisible) {
@@ -386,14 +398,6 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         triggerUIUpdate()
     }
 
-    private fun updateAllSalesFromCache() {
-        rawResults = rawResults.map { familyResult ->
-            val updatedCards = familyResult.upgradeCards.map { card -> fetchSalesData(card) }
-            familyResult.copy(upgradeCards = updatedCards)
-        }
-        triggerUIUpdate()
-    }
-
     private fun applySortingAndFiltering() {
         if (rawResults.isEmpty()) return
 
@@ -401,7 +405,7 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
         val rarityFilter = rarityFilterComboBox.value
         val searchText = searchField.text?.lowercase() ?: ""
 
-        scope.launch {
+        taskQueue.submitUnique("SORT_FILTER") {
             // Update exclusion status first
             val currentResults = rawResults.map { it.copy(isExcluded = KatBlacklistManager.isBlacklisted(it.family.name)) }
 
@@ -409,7 +413,12 @@ class KatCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
             val familyFilteredResults = if (searchText.isBlank()) {
                 currentResults
             } else {
-                currentResults.filter { it.family.name.lowercase().contains(searchText) }
+                val searchQueries = searchText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                currentResults.filter { result ->
+                    val cleanName = result.family.name.lowercase().replace("_", " ")
+                    val rawName = result.family.name.lowercase()
+                    searchQueries.any { query -> cleanName.contains(query) || rawName.contains(query) }
+                }
             }
 
             // Get all upgrade cards from filtered families

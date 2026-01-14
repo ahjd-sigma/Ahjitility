@@ -3,6 +3,8 @@ plugins {
     application
     id("org.openjfx.javafxplugin") version "0.1.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.gitlab.arturbosch.detekt") version "1.23.4"
+
 }
 
 group = "org.sigma"
@@ -37,6 +39,12 @@ javafx {
 tasks.test {
     useJUnitPlatform()
 }
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+}
+
 kotlin {
     jvmToolchain(21)
 }

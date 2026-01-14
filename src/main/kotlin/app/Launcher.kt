@@ -1,27 +1,26 @@
 package app
 
+import MainApp
+import javafx.animation.Animation
+import javafx.animation.RotateTransition
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Button
-import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
-import javafx.scene.layout.*
+import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import javafx.scene.shape.Circle
 import javafx.stage.Stage
-import javafx.animation.Animation
-import javafx.animation.RotateTransition
 import javafx.util.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.javafx.JavaFx
-import utils.GeneralConfig
-import utils.UpdateChecker
-import utils.UpdateInfo
-import MainApp
+import kotlinx.coroutines.launch
+import utils.*
+import kotlin.system.exitProcess
 
 class Launcher : Application() {
     private val scope = CoroutineScope(Dispatchers.JavaFx)
@@ -40,21 +39,12 @@ class Launcher : Application() {
     }
 
     private fun checkUpdates(root: StackPane, stage: Stage) {
-        val loadingBox = VBox(20.0).apply {
-            alignment = Pos.CENTER
-            
-            children.add(Label("Ahjitility").apply {
-                style = """
-                    -fx-text-fill: aqua; 
-                    -fx-font-size: 32px; 
-                    -fx-font-weight: bold;
-                    -fx-effect: dropshadow(three-pass-box, rgba(0,255,255,0.8), 15, 0, 0, 0);
-                """.trimIndent()
+        val loadingBox = vbox(20.0, Pos.CENTER) {
+            children.add("Ahjitility".label(color = "aqua", size = "32px", bold = true).apply {
+                style += " -fx-effect: dropshadow(three-pass-box, rgba(0,255,255,0.8), 15, 0, 0, 0);"
             })
             
-            children.add(Label("Checking for updates...").apply {
-                style = "-fx-text-fill: #888888; -fx-font-size: 14px;"
-            })
+            children.add("Checking for updates...".label(color = "#888888", size = "14px"))
             
             val loader = Circle(10.0).apply {
                 style = "-fx-stroke: ${GeneralConfig.colorAccentBlue}; -fx-fill: transparent; -fx-stroke-width: 3;"
@@ -84,74 +74,36 @@ class Launcher : Application() {
     }
 
     private fun showUpdateScreen(root: StackPane, updateInfo: UpdateInfo, stage: Stage) {
-        val content = VBox(20.0).apply {
-            alignment = Pos.CENTER
+        val content = vbox(20.0, Pos.CENTER) {
             padding = Insets(30.0)
             
-            children.add(Label("Ahjitility").apply {
-                style = """
-                    -fx-text-fill: aqua; 
-                    -fx-font-size: 32px; 
-                    -fx-font-weight: bold;
-                    -fx-effect: dropshadow(three-pass-box, rgba(0,255,255,0.8), 15, 0, 0, 0);
-                """.trimIndent()
+            children.add("Ahjitility".label(color = "aqua", size = "32px", bold = true).apply {
+                style += " -fx-effect: dropshadow(three-pass-box, rgba(0,255,255,0.8), 15, 0, 0, 0);"
             })
             
-            children.add(Label("New Version Available: v${updateInfo.version}").apply {
-                style = "-fx-text-fill: ${GeneralConfig.colorAccentBlue}; -fx-font-size: 18px; -fx-font-weight: bold;"
-            })
-
-            val changelogArea = ScrollPane().apply {
-                style = "-fx-background: ${GeneralConfig.colorFieldBg}; -fx-background-color: transparent;"
-                prefHeight = 150.0
-                maxWidth = 500.0
-                content = Label(updateInfo.changelog).apply {
-                    style = "-fx-text-fill: #cccccc; -fx-font-size: 13px;"
+            children.add("New Version Available: v${updateInfo.version}".label(color = "orange", size = "18px", bold = true))
+            
+            val scroll = ScrollPane().apply {
+                style = "-fx-background-color: transparent; -fx-background: transparent;"
+                content = "Changelog:\n${updateInfo.changelog}".label(color = "#aaaaaa", size = "13px").apply {
                     isWrapText = true
-                    maxWidth = 480.0
-                    padding = Insets(10.0)
+                    maxWidth = 500.0
                 }
             }
-            children.add(changelogArea)
+            children.add(scroll)
             
-            val btnBox = HBox(20.0).apply {
-                alignment = Pos.CENTER
-                
-                val updateBtn = Button("Update Now").apply {
-                    style = """
-                        -fx-background-color: ${GeneralConfig.colorAccentBlue};
-                        -fx-text-fill: white;
-                        -fx-font-size: 16px;
-                        -fx-font-weight: bold;
-                        -fx-padding: 10 20;
-                        -fx-background-radius: 8;
-                        -fx-cursor: hand;
-                    """.trimIndent()
-                    
-                    setOnAction {
-                        performUpdate(this, root, updateInfo)
+            val buttons = hbox(15.0, Pos.CENTER) {
+                children.addAll(
+                    "Update Now".button().apply {
+                        style += " -fx-background-color: #00aa00; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 20;"
+                        setOnAction { performUpdate(this, root, updateInfo) }
+                    },
+                    "Later".button(onClick = { launchMainApp(stage) }).apply {
+                        style += " -fx-background-color: #555555; -fx-font-size: 14px; -fx-padding: 10 20;"
                     }
-                }
-                
-                val launchBtn = Button("Launch Anyway").apply {
-                    style = """
-                        -fx-background-color: ${GeneralConfig.colorButtonBg};
-                        -fx-text-fill: white;
-                        -fx-font-size: 16px;
-                        -fx-font-weight: bold;
-                        -fx-padding: 10 20;
-                        -fx-background-radius: 8;
-                        -fx-cursor: hand;
-                    """.trimIndent()
-                    
-                    setOnAction {
-                        launchMainApp(stage)
-                    }
-                }
-                
-                children.addAll(updateBtn, launchBtn)
+                )
             }
-            children.add(btnBox)
+            children.add(buttons)
         }
         
         root.children.add(content)
@@ -161,8 +113,8 @@ class Launcher : Application() {
         btn.isDisable = true
         btn.text = "Updating..."
         
-        val statusLabel = Label("Starting download...").apply {
-             style = "-fx-text-fill: #888888; -fx-font-size: 14px;"
+        val statusLabel = "Starting download...".label(color = "orange", size = "14px").apply {
+            padding = Insets(10.0)
         }
         (root.children[0] as VBox).children.add(statusLabel)
 
@@ -175,8 +127,9 @@ class Launcher : Application() {
                 }
                 // If we get here, the script was launched successfully
                 Platform.exit()
-                System.exit(0)
+                exitProcess(0)
             } catch (e: Exception) {
+                Log.debug(this, "Failed to download or install update", e)
                  Platform.runLater {
                     statusLabel.text = "Error: ${e.message}"
                     statusLabel.style = "-fx-text-fill: #e74c3c; -fx-font-size: 14px;"
@@ -194,7 +147,7 @@ class Launcher : Application() {
             val newStage = Stage()
             mainApp.start(newStage)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.debug(this, "Failed to launch MainApp", e)
         }
     }
 }

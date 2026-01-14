@@ -12,7 +12,7 @@ files:
   kat_json_path: src/main/resources/kat/kat.json
   kat_blacklist_path: src/main/resources/kat_blacklist.json
 time_reduction:
-  target_max_duration_hours: 0.05
+  target_max_duration_hours: 0.0
   enable_time_reduction: true
   max_flowers: 30
   max_bouquets: 10

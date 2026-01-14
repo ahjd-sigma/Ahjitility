@@ -2,21 +2,21 @@ package ui.settings
 
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.Scene
 import javafx.scene.Node
+import javafx.scene.Scene
 import javafx.scene.control.*
-import javafx.scene.layout.*
-import javafx.stage.Stage
+import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
 import utils.*
 import kotlin.reflect.KMutableProperty0
 
 class SettingsUI(private val onBack: () -> Unit) {
-    private val root = VBox(0.0)
-    private val header = HBox(20.0)
-    private val contentWrapper = VBox(20.0)
-    private val innerWrapper = VBox(15.0)
-    private val optionsLabel = Label("Options")
-    private val subLabel = Label("Configure your preferences and settings")
+    private val root = vbox(0.0)
+    private val header = hbox(20.0)
+    private val contentWrapper = vbox(20.0)
+    private val innerWrapper = vbox(15.0)
+    private val optionsLabel = "Options".label()
+    private val subLabel = "Configure your preferences and settings".label()
     private val tabPane = TabPane()
     private val configListener = { refreshStyles() }
 
@@ -72,11 +72,8 @@ class SettingsUI(private val onBack: () -> Unit) {
             alignment = Pos.CENTER_LEFT
             spacing = 12.0
             children.addAll(
-                Button("← Back").apply {
-                    style = Styles.button
-                    setOnAction { onBack() }
-                },
-                VBox(2.0).apply {
+                "← Back".button(onClick = { onBack() }),
+                vbox(2.0) {
                     children.addAll(optionsLabel, subLabel)
                 },
                 spacer()
@@ -119,7 +116,7 @@ class SettingsUI(private val onBack: () -> Unit) {
         }
     }
 
-    private fun createGeneralSettings() = VBox(15.0).apply {
+    private fun createGeneralSettings() = vbox(15.0) {
         padding = Insets(20.0)
         children.addAll(
             sectionHeader("Global Colors"),
@@ -135,11 +132,14 @@ class SettingsUI(private val onBack: () -> Unit) {
             colorSetting("Accent Red (Error)", GeneralConfig::colorAccentRed),
             colorSetting("Accent Green (Success)", GeneralConfig::colorAccentGreen),
 
+            sectionHeader("Logging"),
+            booleanSetting("Debug Mode", GeneralConfig::debugMode),
+
             resetButton { GeneralConfig.resetToDefaults() }
         )
     }
 
-    private fun createKatConfigSettings() = VBox(15.0).apply {
+    private fun createKatConfigSettings() = vbox(15.0) {
         padding = Insets(20.0)
         children.addAll(
             sectionHeader("Time Reduction"),
@@ -168,7 +168,7 @@ class SettingsUI(private val onBack: () -> Unit) {
         )
     }
 
-    private fun createKatUISettings() = VBox(15.0).apply {
+    private fun createKatUISettings() = vbox(15.0) {
         padding = Insets(20.0)
         children.addAll(
             sectionHeader("Layout"),
@@ -183,7 +183,7 @@ class SettingsUI(private val onBack: () -> Unit) {
         )
     }
 
-    private fun createForgeConfigSettings() = VBox(15.0).apply {
+    private fun createForgeConfigSettings() = vbox(15.0) {
         padding = Insets(20.0)
         children.addAll(
             sectionHeader("Defaults"),
@@ -194,7 +194,7 @@ class SettingsUI(private val onBack: () -> Unit) {
         )
     }
 
-    private fun createForgeUISettings() = VBox(15.0).apply {
+    private fun createForgeUISettings() = vbox(15.0) {
         padding = Insets(20.0)
         children.addAll(
             sectionHeader("Layout"),
@@ -205,7 +205,7 @@ class SettingsUI(private val onBack: () -> Unit) {
         )
     }
 
-    private fun createShardConfigSettings() = VBox(15.0).apply {
+    private fun createShardConfigSettings() = vbox(15.0) {
         padding = Insets(20.0)
         children.addAll(
             sectionHeader("Defaults"),
@@ -216,7 +216,7 @@ class SettingsUI(private val onBack: () -> Unit) {
         )
     }
 
-    private fun createShardUISettings() = VBox(15.0).apply {
+    private fun createShardUISettings() = vbox(15.0) {
         padding = Insets(20.0)
         children.addAll(
             sectionHeader("Layout"),
@@ -228,39 +228,33 @@ class SettingsUI(private val onBack: () -> Unit) {
     }
 
     // Helper UI Builders
-    private fun resetButton(onReset: () -> Unit) = HBox().apply {
+    private fun resetButton(onReset: () -> Unit) = hbox {
         padding = Insets(20.0, 0.0, 0.0, 0.0)
         alignment = Pos.CENTER_RIGHT
-        children.add(Button("Reset to Defaults").apply {
-            style = "-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-border-color: #e74c3c; -fx-border-radius: 5; -fx-padding: 5 15;"
-            setOnAction {
-                onReset()
-                refreshTabs()
-            }
+        children.add("Reset to Defaults".button(onClick = {
+            onReset()
+            refreshTabs()
+        }).apply {
+            style += " -fx-background-color: ${GeneralConfig.colorAccentRed}; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"
         })
     }
-    private fun sectionHeader(title: String) = Label(title).apply {
-        style = "-fx-text-fill: ${GeneralConfig.colorAccentBlue}; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 5 0;"
+    private fun sectionHeader(title: String) = title.label(
+        color = GeneralConfig.colorAccentBlue,
+        size = "16px",
+        bold = true
+    ).apply {
+        style += " -fx-padding: 10 0 5 0;"
     }
 
-    private fun settingRow(label: String, control: javafx.scene.Node) = HBox(10.0).apply {
+    private fun settingRow(label: String, control: Node) = hbox(10.0) {
         alignment = Pos.CENTER_LEFT
         children.addAll(
-            Label(label).apply { 
-                style = "-fx-text-fill: ${GeneralConfig.colorTextPrimary}; -fx-font-size: 14px;"
+            label.label(size = "14px").apply { 
                 minWidth = 200.0
             },
             control
         )
     }
-
-    private fun stringSetting(label: String, prop: KMutableProperty0<String>) = settingRow(label, textField(prop.get()).apply {
-        prefWidth = 400.0
-        textProperty().addListener { _, _, newVal -> 
-            prop.set(newVal)
-            saveAll()
-        }
-    })
 
     private fun doubleSetting(label: String, prop: KMutableProperty0<Double>, scale: Double = 1.0) = settingRow(label, textField((prop.get() * scale).toString()).apply {
         prefWidth = 100.0
@@ -298,32 +292,15 @@ class SettingsUI(private val onBack: () -> Unit) {
         }
     })
 
-    private fun colorSetting(label: String, prop: KMutableProperty0<String>) = settingRow(label, HBox(10.0).apply {
-        alignment = Pos.CENTER_LEFT
-        val colorPicker = ColorPicker(javafx.scene.paint.Color.web(prop.get())).apply {
-            style = "-fx-background-color: #333333;"
-        }
-        val hexField = textField(prop.get()).apply { prefWidth = 80.0 }
-        
-        colorPicker.valueProperty().addListener { _, _, newVal ->
-            val hex = String.format("#%02x%02x%02x", 
-                (newVal.red * 255).toInt(), 
-                (newVal.green * 255).toInt(), 
-                (newVal.blue * 255).toInt())
-            hexField.text = hex
-            prop.set(hex)
-            saveAll()
-        }
-        
-        hexField.textProperty().addListener { _, _, newVal ->
-            if (newVal.matches(Regex("#[0-9a-fA-F]{6}"))) {
-                colorPicker.value = javafx.scene.paint.Color.web(newVal)
-                prop.set(newVal)
+    private fun colorSetting(label: String, prop: KMutableProperty0<String>) = settingRow(label, hbox(10.0) {
+        val picker = ColorPicker(javafx.scene.paint.Color.web(prop.get())).apply {
+            style = "-fx-background-color: ${GeneralConfig.colorFieldBg}; -fx-color-label-visible: false;"
+            setOnAction {
+                prop.set("#" + value.toString().substring(2, 8))
                 saveAll()
             }
         }
-        
-        children.addAll(colorPicker, hexField)
+        children.add(picker)
     })
 
     private fun saveAll() {

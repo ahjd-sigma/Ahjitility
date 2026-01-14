@@ -12,6 +12,7 @@ object ResourceLoader {
             ?.use { it.readText() }
             ?.let { gson.fromJson(it, object : TypeToken<T>() {}.type) }
     } catch (e: Exception) {
+        Log.debug("ResourceLoader", "Failed to load resource: $path", e)
         null
     }
 }

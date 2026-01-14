@@ -3,6 +3,7 @@ package business.kat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import utils.KatConfig
+import utils.Log
 import java.io.File
 
 object KatBlacklistManager {
@@ -21,8 +22,8 @@ object KatBlacklistManager {
                 val type = object : TypeToken<Set<String>>() {}.type
                 blacklistedFamilies = gson.fromJson<Set<String>>(content, type).toMutableSet()
             }
-        } catch (_: Exception) {
-            // Silently fail
+        } catch (e: Exception) {
+            Log.debug(this, "Failed to load Kat blacklist", e)
         }
     }
 
@@ -36,8 +37,8 @@ object KatBlacklistManager {
                     }
                     blacklistFile.writeText(gson.toJson(blacklistedFamilies))
                 }
-            } catch (_: Exception) {
-                // Silently fail
+            } catch (e: Exception) {
+                Log.debug(this, "Failed to save Kat blacklist", e)
             }
         }.start()
     }
@@ -54,6 +55,4 @@ object KatBlacklistManager {
         }
         save()
     }
-
-    fun getBlacklist(): Set<String> = blacklistedFamilies
 }

@@ -29,17 +29,16 @@ object UpdateChecker {
         val tagsUrl = "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/tags"
         
         try {
-            println("Checking for releases at: $releasesUrl")
+            Log.debug(this, "Checking for releases at: $releasesUrl")
             val releaseInfo = fetchFromUrl(releasesUrl)
             if (releaseInfo != null) return@withContext releaseInfo
 
-            println("No official release found. Checking tags at: $tagsUrl")
+            Log.debug(this, "No official release found. Checking tags at: $tagsUrl")
             val tagInfo = fetchLatestTag(tagsUrl)
             if (tagInfo != null) return@withContext tagInfo
 
         } catch (e: Exception) {
-            println("Error during update check: ${e.message}")
-            e.printStackTrace()
+            Log.debug(this, "Error during update check", e)
         }
         
         return@withContext UpdateInfo(GeneralConfig.VERSION, "", "", false)
@@ -62,8 +61,8 @@ object UpdateChecker {
             val latestVersion = tagName.removePrefix("v").trim()
             val currentVersion = GeneralConfig.VERSION.trim()
             
-            println("Latest Release Found: $latestVersion")
-            println("Current Local Version: $currentVersion")
+            Log.debug(this, "Latest Release Found: $latestVersion")
+            Log.debug(this, "Current Local Version: $currentVersion")
             
             if (isNewer(latestVersion, currentVersion)) {
                 val changelog = json.get("body").asString
@@ -106,8 +105,8 @@ object UpdateChecker {
             val latestVersion = tagName.removePrefix("v").trim()
             val currentVersion = GeneralConfig.VERSION.trim()
             
-            println("Latest Tag Found: $latestVersion")
-            println("Current Local Version: $currentVersion")
+            Log.debug(this, "Latest Tag Found: $latestVersion")
+            Log.debug(this, "Current Local Version: $currentVersion")
             
             if (isNewer(latestVersion, currentVersion)) {
                 val isSourceEnv = File("src").exists()
@@ -115,7 +114,7 @@ object UpdateChecker {
                 
                 // Tags only have source zip, so if we're in packaged mode, we can't update via just a tag
                 if (!isSourceEnv) {
-                    println("Found newer tag, but no JAR asset available in a release. Skipping packaged update.")
+                    Log.debug(this, "Found newer tag, but no JAR asset available in a release. Skipping packaged update.")
                     return null
                 }
                 
@@ -177,7 +176,7 @@ object UpdateChecker {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.debug("UpdateChecker", "Download and install failed", e)
             onProgress("Update failed: ${e.message}")
             throw e
         }
@@ -297,7 +296,7 @@ object UpdateChecker {
         batchFile.writeText(script)
         
         val absoluteBatchPath = batchFile.absolutePath
-        println("Launching updater at: $absoluteBatchPath")
+        Log.debug(this, "Launching updater at: $absoluteBatchPath")
         
         try {
             // Use 'explorer.exe' to launch the batch file. 
@@ -306,12 +305,12 @@ object UpdateChecker {
             // Give the OS a moment to fully spawn the detached process
             Thread.sleep(1000)
         } catch (e: Exception) {
-            println("Failed to launch batch via Explorer: ${e.message}")
+            Log.debug(this, "Failed to launch batch via Explorer", e)
             // Fallback to basic start
             try {
                  ProcessBuilder("cmd", "/c", "start", "Ahjitility Updater", "cmd", "/c", "\"$absoluteBatchPath\"").start()
             } catch (e2: Exception) {
-                 println("Critical failure launching batch: ${e2.message}")
+                 Log.debug(this, "Critical failure launching batch", e2)
             }
         }
     }

@@ -1,40 +1,26 @@
 package ui.shard
 
-import business.shard.*
+import business.shard.ShardInfo
 import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.control.*
-import javafx.scene.layout.*
-import utils.Styles
-import utils.label
-import utils.textField
-import utils.separator
+import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
+import utils.*
 
 class ShardSidebar {
-    private val nameLabel = Label().apply {
-        style = "-fx-text-fill: ${Styles.TEXT_COLOR}; -fx-font-size: 14px;"
-    }
-    private val rateField = TextField().apply {
-        style = Styles.field
-    }
-    private val chestPriceField = TextField().apply {
-        style = Styles.field
-    }
-    private val baitCountField = TextField().apply {
-        style = Styles.field
-    }
-    private val baitPriceLabel = Label().apply {
-        style = "-fx-text-fill: #888888; -fx-font-size: 11px;"
-    }
+    private val nameLabel = "".label(size = "14px")
+    private val rateField = textField()
+    private val chestPriceField = textField()
+    private val baitCountField = textField()
+    private val baitPriceLabel = "".label(color = "#888888", size = "11px")
     private var onSave: ((Double) -> Unit)? = null
     private var onSaveChestPrice: ((Double) -> Unit)? = null
     private var onSaveBaitCount: ((Double) -> Unit)? = null
 
-    private val contentBox = VBox(15.0).apply {
+    private val contentBox = vbox(15.0) {
         padding = Insets(20.0)
     }
 
-    val node = VBox().apply {
+    val node = vbox {
         style = "-fx-background-color: ${Styles.DARK_BG};"
         children.add(contentBox)
         VBox.setVgrow(contentBox, Priority.ALWAYS)
@@ -49,9 +35,7 @@ class ShardSidebar {
         
         if (shard == null) {
             contentBox.children.add(
-                Label("Select a shard").apply {
-                    style = "-fx-text-fill: #888888; -fx-font-size: 16px; -fx-font-weight: bold;"
-                }
+                "Select a shard".label(color = "#888888", size = "16px", bold = true)
             )
             return
         }
@@ -68,56 +52,58 @@ class ShardSidebar {
         onSaveBaitCount = onSaveBaitCountCallback
         
         contentBox.children.addAll(
-            Label("Modify Rate").apply {
-                style = "-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"
-            },
+            "Modify Rate".label(color = "white", size = "18px", bold = true),
             nameLabel,
-            separator().apply { style = "-fx-background-color: #444; -fx-opacity: 0.5;" },
-            VBox(8.0,
-                Label("Rate per hour:").apply { style = "-fx-text-fill: ${Styles.TEXT_COLOR};" },
-                rateField
-            )
+            vbox(8.0) {
+                padding = Insets(10.0, 0.0, 0.0, 0.0)
+                children.addAll(
+                    "Rate per hour:".label(),
+                    rateField
+                )
+            }
         )
 
         if (shard.isDungeonShard()) {
             contentBox.children.add(
-                VBox(8.0,
-                    Label("Chest Price:").apply { style = "-fx-text-fill: ${Styles.TEXT_COLOR};" },
-                    chestPriceField
-                )
+                vbox(8.0) {
+                    children.addAll(
+                        "Chest Price:".label(),
+                        chestPriceField
+                    )
+                }
             )
         }
 
         if (shard.isFishingShard) {
             contentBox.children.add(
-                VBox(8.0,
-                    Label("Bait per 5 mins:").apply { style = "-fx-text-fill: ${Styles.TEXT_COLOR};" },
-                    baitCountField,
-                    baitPriceLabel
-                )
+                vbox(8.0) {
+                    children.addAll(
+                        "Bait per 5 mins:".label(),
+                        baitCountField,
+                        baitPriceLabel
+                    )
+                }
             )
         }
 
         contentBox.children.add(
-            VBox(10.0).apply {
+            vbox(10.0) {
                 padding = Insets(10.0, 0.0, 0.0, 0.0)
                 children.addAll(
-                    Button("Save Changes").apply {
+                    "Save Changes".button(onClick = { save() }).apply {
                         style = """
                             -fx-background-color: #4CAF50; -fx-text-fill: white; 
                             -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 5;
                             -fx-cursor: hand;
                         """.trimIndent()
                         maxWidth = Double.MAX_VALUE
-                        setOnAction { save() }
                     },
-                    Button("Close").apply {
+                    "Close".button(onClick = { hide() }).apply {
                         style = """
                             -fx-background-color: #f44336; -fx-text-fill: white;
                             -fx-padding: 8; -fx-background-radius: 5; -fx-cursor: hand;
                         """.trimIndent()
                         maxWidth = Double.MAX_VALUE
-                        setOnAction { hide() }
                     }
                 )
             }
@@ -144,7 +130,7 @@ class ShardSidebar {
         }
         
         if (rate == null && chestPrice == null && baitCount == null) {
-            println("Invalid input")
+            Log.debug(this, "Invalid input in ShardSideBar save")
         }
     }
 }

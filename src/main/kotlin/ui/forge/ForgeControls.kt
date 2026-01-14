@@ -1,105 +1,63 @@
 package ui.forge
 
-import business.forge.*
-import javafx.geometry.*
-import javafx.scene.control.*
-import javafx.scene.layout.*
+import business.forge.DurationFilter
+import business.forge.ForgeConfig
+import business.forge.SortMode
+import business.forge.SourcePriority
+import javafx.geometry.Insets
+import javafx.geometry.Pos
 import utils.*
 
 class ForgeControls {
-    private val searchField = textField("Search:", width = ForgeUIConfig.searchFieldWidth).apply { 
-        textProperty().addListener { _, _, _ -> notifyChange() }
-    }
+    private val searchField = textField(prompt = "Search:", width = ForgeUIConfig.searchFieldWidth) { notifyChange() }
 
-    private val sellModeBox = ComboBox<String>().apply {
-        items.addAll("Instant Sell", "Sell Order")
-        value = "Sell Order"
-        style = Styles.combo
-        setOnAction { notifyChange() }
-    }
+    private val sellModeBox = comboBox(listOf("Instant Sell", "Sell Order"), "Sell Order") { notifyChange() }
+    private val buyModeBox = comboBox(listOf("Instant Buy", "Buy Order"), "Buy Order") { notifyChange() }
+    private val sortModeBox = comboBox(listOf("Sort: Profit", "Sort: Profit/Hour"), "Sort: Profit") { notifyChange() }
+    private val sourcePriorityBox = comboBox(listOf("All Sources", "Bazaar First", "AH First"), "All Sources") { notifyChange() }
+    private val slotsBox = comboBox((1..7).toList(), 1) { notifyChange() }
+    private val quickForgeBox = comboBox((0..20).toList(), ForgeModuleConfig.defaultQuickForgeLevel) { notifyChange() }
     
-    private val buyModeBox = ComboBox<String>().apply {
-        items.addAll("Instant Buy", "Buy Order")
-        value = "Buy Order"
-        style = Styles.combo
-        setOnAction { notifyChange() }
-    }
+    private val bazaarTaxField = textField(ForgeModuleConfig.defaultBazaarTax.toString(), width = ForgeUIConfig.taxFieldWidth) { notifyChange() }
+    private val ahTaxField = textField(ForgeModuleConfig.defaultAhMultiplier.toString(), width = ForgeUIConfig.taxFieldWidth) { notifyChange() }
     
-    private val sortModeBox = ComboBox<String>().apply {
-        items.addAll("Sort: Profit", "Sort: Profit/Hour")
-        value = "Sort: Profit"
-        style = Styles.combo
-        setOnAction { notifyChange() }
-    }
+    private val durationRangeBox = comboBox(
+        listOf("All Durations", "0s - 60s", "1min - 30min", "30min - 1hour", "1hour - 6hours", "6h - 18h", "18h+"),
+        "All Durations"
+    ) { notifyChange() }
     
-    private val sourcePriorityBox = ComboBox<String>().apply {
-        items.addAll("All Sources", "Bazaar First", "AH First")
-        value = "All Sources"
-        style = Styles.combo
-        setOnAction { notifyChange() }
-    }
-    
-    private val slotsBox = ComboBox<Int>().apply { 
-        items.addAll((1..7).toList())
-        value = 1
-        style = Styles.combo
-        setOnAction { notifyChange() }
-    }
-    
-    private val quickForgeBox = ComboBox<Int>().apply { 
-        items.addAll((0..20).toList())
-        value = ForgeModuleConfig.defaultQuickForgeLevel
-        style = Styles.combo
-        setOnAction { notifyChange() }
-    }
-    
-    private val bazaarTaxField = textField(ForgeModuleConfig.defaultBazaarTax.toString(), width = ForgeUIConfig.taxFieldWidth).apply { 
-        textProperty().addListener { _, _, _ -> notifyChange() }
-    }
-    
-    private val ahTaxField = textField(ForgeModuleConfig.defaultAhMultiplier.toString(), width = ForgeUIConfig.taxFieldWidth).apply { 
-        textProperty().addListener { _, _, _ -> notifyChange() }
-    }
-    
-    private val durationRangeBox = ComboBox<String>().apply {
-        items.addAll(
-            "All Durations", "0s - 60s", "1min - 30min", "30min - 1hour", 
-            "1hour - 6hours", "6h - 18h", "18h+"
-        )
-        value = "All Durations"
-        style = Styles.combo
-        setOnAction { notifyChange() }
-    }
-    
-    private val refreshButton = Button("Refresh").apply { 
-        style = Styles.button
-        // OnAction will be handled by the calculator calling this
-    }
+    private val refreshButton = "Refresh".button()
 
-    val node = HBox(10.0).apply {
-        padding = Insets(10.0)
-        alignment = Pos.CENTER_LEFT
+    val node = hbox(20.0) {
+        padding = Insets(12.0)
         style = "-fx-background-color: ${Styles.DARK_BG}; -fx-border-color: #333333; -fx-border-width: 0 0 1 0;"
         
         children.addAll(
-            "Search:".label(), searchField,
-            separator(),
-            "Sell:".label(), sellModeBox,
-            "Buy:".label(), buyModeBox,
-            separator(),
-            "BZ %:".label(), bazaarTaxField,
-            "AH x:".label(), ahTaxField,
-            separator(),
-            "Sort:".label(), sortModeBox,
-            separator(),
-            "Source:".label(), sourcePriorityBox,
-            separator(),
-            "Time:".label(), durationRangeBox,
-            separator(),
-            "Slots:".label(), slotsBox,
-            "Quick:".label(), quickForgeBox,
-            separator(),
-            refreshButton
+            vbox(2.0) {
+                children.addAll("Search".label(color = "#888888", size = 10, bold = true), searchField)
+            },
+            vbox(2.0) {
+                children.addAll("Market".label(color = "#888888", size = 10, bold = true), hbox(5.0) { children.addAll(sellModeBox, buyModeBox) })
+            },
+            vbox(2.0) {
+                children.addAll("Tax % / AH x".label(color = "#888888", size = 10, bold = true), hbox(5.0) { children.addAll(bazaarTaxField, ahTaxField) })
+            },
+            vbox(2.0) {
+                children.addAll("Sort".label(color = "#888888", size = 10, bold = true), sortModeBox)
+            },
+            vbox(2.0) {
+                children.addAll("Priority".label(color = "#888888", size = 10, bold = true), sourcePriorityBox)
+            },
+            vbox(2.0) {
+                children.addAll("Time".label(color = "#888888", size = 10, bold = true), durationRangeBox)
+            },
+            vbox(2.0) {
+                children.addAll("Slots / Quick Forge lvl".label(color = "#888888", size = 10, bold = true), hbox(5.0) { children.addAll(slotsBox, quickForgeBox) })
+            },
+            vbox(2.0) {
+                alignment = Pos.BOTTOM_LEFT
+                children.add(refreshButton)
+            }
         )
     }
 

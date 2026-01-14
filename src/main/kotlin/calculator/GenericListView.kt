@@ -26,13 +26,13 @@ class GenericListView<T>(
 
     var items: List<T>
         get() = listView.items
-        set(value) { listView.items.setAll(value) }
+        set(value) {
+            listView.items.setAll(value)
+        }
 
     fun onSelectionChanged(handler: (T?) -> Unit) {
         listView.selectionModel.selectedItemProperty().addListener { _, _, newItem ->
             handler(newItem)
         }
     }
-
-    val selectedItem: T? get() = listView.selectionModel.selectedItem
 }

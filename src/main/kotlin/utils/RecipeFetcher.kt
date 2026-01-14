@@ -23,9 +23,9 @@ class RecipeFetcher {
                 val type = object : TypeToken<Map<String, Map<String, Int>>>() {}.type
                 val loadedCache: Map<String, Map<String, Int>> = gson.fromJson(json, type)
                 recipeCache.putAll(loadedCache)
-                println("[DEBUG] RecipeFetcher: Loaded ${recipeCache.size} recipes from cache file")
+                Log.debug(this, "Loaded ${recipeCache.size} recipes from cache file")
             } catch (e: Exception) {
-                println("[DEBUG] RecipeFetcher: Failed to load cache from file: ${e.message}")
+                Log.debug(this, "Failed to load cache from file (starting fresh)")
             }
         }
     }
@@ -34,16 +34,16 @@ class RecipeFetcher {
         try {
             val json = gson.toJson(recipeCache)
             cacheFile.writeText(json)
-            println("[DEBUG] RecipeFetcher: Saved ${recipeCache.size} recipes to cache file")
+            Log.debug(this, "Saved ${recipeCache.size} recipes to cache file")
         } catch (e: Exception) {
-            println("[DEBUG] RecipeFetcher: Failed to save cache to file: ${e.message}")
+            Log.debug(this, "Failed to save cache to file: ${e.message}")
         }
     }
 
     fun clearCache() {
         recipeCache.clear()
         if (cacheFile.exists()) cacheFile.delete()
-        println("[DEBUG] RecipeFetcher: Cache cleared manually")
+        Log.debug(this, "Cache cleared manually")
     }
 
     // Rate limiting: 30 requests per 10 seconds (as recommended in API-INFO.md)
@@ -73,7 +73,7 @@ class RecipeFetcher {
         }
     }
 
-    private val pendingRequests = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+    private val pendingRequests = ConcurrentHashMap.newKeySet<String>()
     private var totalRequested = 0
     private var completedRequested = 0
 
@@ -110,7 +110,7 @@ class RecipeFetcher {
                     onComplete()
                 }
             } catch (e: Exception) {
-                // Ignore background errors
+                Log.debug(this, "Error in background recipe fetch for $petName ($rarityNum)", e)
             } finally {
                 completedRequested++
                 pendingRequests.remove(cacheKey)
@@ -140,6 +140,7 @@ class RecipeFetcher {
                     val rawRecipe: Map<String, String>? = try {
                         gson.fromJson(body, type)
                     } catch (e: Exception) {
+                        Log.debug(this, "Failed to parse recipe JSON for $petName ($rarityNum)")
                         null
                     }
                     
@@ -158,10 +159,12 @@ class RecipeFetcher {
                     saveCacheToFile()
                     materials
                 } else {
+                    Log.debug(this, "Recipe API returned non-success for $petName ($rarityNum): ${response.code}")
                     null
                 }
             }
         } catch (e: Exception) {
+            Log.debug(this, "Critical failure fetching recipe for $petName ($rarityNum)", e)
             null
         }
     }

@@ -1,6 +1,7 @@
 package business.forge
 
 import utils.PriceResult
+import utils.Log
 
 object ForgeCalculations {
     fun calculateProfit(
@@ -10,6 +11,7 @@ object ForgeCalculations {
         config: ForgeConfig,
         hasBazaar: Boolean
     ): ForgeResult {
+        Log.debug(this, "Calculating profit for ${recipe.displayName}")
         val sellValue = calculateSellValue(sellPrice, config)
         val totalCost = calculateTotalCost(recipe, ingredientPrices, config)
         
@@ -22,6 +24,8 @@ object ForgeCalculations {
         } else {
             profit
         }
+
+        Log.debug(this, "Result: Profit=$profit, Profit/hr=$profitPerHour, Duration=${effectiveDuration}s")
 
         return ForgeResult(
             recipe,

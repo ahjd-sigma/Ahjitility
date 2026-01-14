@@ -9,7 +9,8 @@ object GeneralConfig : BaseConfig("general.yaml") {
         GeneralConfig::class.java.getResourceAsStream("/version.txt")?.bufferedReader()?.use { it.readText().trim() }
             ?: java.io.File("src/main/resources/version.txt").readText().trim()
     } catch (e: Exception) {
-        "1.1.0" // Ultimate fallback
+        Log.debug("GeneralConfig", "Failed to load version.txt, using fallback: ${e.message}")
+        "1.0.0" // Ultimate fallback
     }
     private const val SCROLL_UNIT = 1_000_000.0
     
@@ -41,16 +42,27 @@ object GeneralConfig : BaseConfig("general.yaml") {
     var fontSizeLarge: String = "16px"
     var fontSizeTitle: String = "18px"
 
+    // Logging
+    var debugMode: Boolean = true
+
+    // Layout
+    var sidebarWidth: Double = 300.0
+
     init {
         val load = { v: Any? -> (v as? Number)?.toDouble()?.div(SCROLL_UNIT) ?: 0.002 }
         val save = { v: Double -> v * SCROLL_UNIT }
         val scrollRange = range(0.0001, 0.1)
+        val sizeRange = range(100.0, 600.0)
 
         register(::scrollWheelMultiplier, "scroll_wheel_multiplier", load, save, scrollRange)
         register(::katScrollMultiplier, "kat_scroll_multiplier", load, save, scrollRange)
         register(::forgeScrollMultiplier, "forge_scroll_multiplier", load, save, scrollRange)
         register(::shardScrollMultiplier, "shard_scroll_multiplier", load, save, scrollRange)
         register(::autoscrollSpeed, "autoscroll_speed", { (it as? Number)?.toDouble()?.div(SCROLL_UNIT) ?: 0.000025 }, save, range(0.000001, 0.001))
+
+        register(::sidebarWidth, "sidebar_width", validate = sizeRange)
+
+        register(::debugMode, "debug_mode")
 
         register(::colorDarkBg, "color_dark_bg")
         register(::colorDarkerBg, "color_darker_bg")
@@ -80,6 +92,7 @@ object GeneralConfig : BaseConfig("general.yaml") {
         forgeScrollMultiplier = 0.002
         shardScrollMultiplier = 0.002
         autoscrollSpeed = 0.000025
+        sidebarWidth = 300.0
 
         colorDarkBg = "#2b2b2b"
         colorDarkerBg = "#1e1e1e"
@@ -99,6 +112,8 @@ object GeneralConfig : BaseConfig("general.yaml") {
         fontSizeMedium = "14px"
         fontSizeLarge = "16px"
         fontSizeTitle = "18px"
+
+        debugMode = true
 
         saveConfig()
         ConfigEvents.fire()

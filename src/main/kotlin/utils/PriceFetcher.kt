@@ -1,16 +1,15 @@
 package utils
 
-import okhttp3.*
-import com.google.gson.*
+import business.forge.SourcePriority
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
-import java.time.Instant
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
-
-import business.forge.SourcePriority
-import utils.KatConfig
 
 data class PriceResult(val price: Double, val isBazaar: Boolean)
 
@@ -30,18 +29,30 @@ class PriceFetcher {
     )
 
     fun fetchAllPrices(force: Boolean = false) {
-        if (force) cache.clear()
+        if (force) {
+            Log.debug(this, "Forcing price fetch, clearing cache...")
+            cache.clear()
+        }
         getOrFetchPrices()
+    }
+
+    fun clearSalesCache() {
+        Log.debug(this, "Clearing sales cache...")
+        salesCache.clear()
+        baseFetchCache.clear()
     }
 
     internal fun getOrFetchPrices(): CachedPrice {
         val cached = cache["prices"]
         if (cached != null && Duration.between(cached.timestamp, Instant.now()) < cacheTimeout) {
+            Log.debug(this, "Using cached prices (age: ${Duration.between(cached.timestamp, Instant.now()).seconds}s)")
             return cached
         }
 
+        Log.debug(this, "Prices expired or missing, fetching from APIs...")
         val bazaar = fetchBazaarPrices()
         val lbin = fetchLbinPrices()
+        Log.debug(this, "Fetched ${bazaar?.size ?: 0} Bazaar prices and ${lbin?.size ?: 0} LBIN prices")
         val newCache = CachedPrice(bazaar, lbin, Instant.now())
         cache["prices"] = newCache
         return newCache
@@ -165,10 +176,11 @@ class PriceFetcher {
         }
     }
 
-    fun fetchHourlySales(itemId: String): Double? {
+    fun fetchHourlySales(itemId: String): Double {
         val now = Instant.now()
         val cached = salesCache[itemId]
         if (cached != null && Duration.between(cached.second, now) < salesCacheTimeout) {
+            Log.debug(this, "Using cached sales for $itemId")
             return cached.first
         }
 
@@ -202,15 +214,15 @@ class PriceFetcher {
         checkRateLimit()
 
         val pageSizes = listOf(500, 250, 100, 50)
-        var auctions: List<CoflAuction>? = null
-        
+        var auctions: List<CoflAuction>?
+
         fun tryFetch(id: String): List<CoflAuction>? {
             for (size in pageSizes) {
                 val url = KatConfig.coflnetSoldAuctionsUrl
                     .replace("{itemId}", id)
                     .replace("{pageSize}", size.toString())
                 
-                val result = fetchJson<List<CoflAuction>>(url, object : TypeToken<List<CoflAuction>>() {})
+                val result = fetchJson(url, object : TypeToken<List<CoflAuction>>() {})
                 if (result != null && result.isNotEmpty()) {
                     return result
                 }
@@ -219,15 +231,18 @@ class PriceFetcher {
         }
 
         return try {
+            Log.debug(this, "Fetching hourly sales for $fetchId...")
             auctions = tryFetch(fetchId)
             
             // Try without PET_ prefix if it failed and was a pet
             if ((auctions == null || auctions.isEmpty()) && isPet && fetchId.startsWith("PET_")) {
                 val altId = fetchId.substring(4)
+                Log.debug(this, "Retrying without PET_ prefix for $altId")
                 auctions = tryFetch(altId)
             }
 
             if (auctions == null || auctions.isEmpty()) {
+                Log.debug(this, "No sales found for $fetchId")
                 if (isPet) {
                     baseFetchCache[originalBaseId] = now
                     for (i in 0..5) salesCache["$originalBaseId;$i"] = Pair(0.0, now)
@@ -238,6 +253,7 @@ class PriceFetcher {
             }
 
             if (isPet) {
+                Log.debug(this, "Processing pet sales for $originalBaseId")
                 baseFetchCache[originalBaseId] = now
                 val rarityMap = KatConfig.rarityNumbers
                 
@@ -252,8 +268,8 @@ class PriceFetcher {
                         val earliest = parseCoflDate(tierAuctions.last().end)
                         val durationHours = max(1.0, Duration.between(earliest, now).toMillis() / (1000.0 * 60.0 * 60.0))
                         val hourlySales = tierAuctions.size.toDouble() / durationHours
+                        Log.debug(this, "Sales for $originalBaseId $tier: $hourlySales/hr")
                         salesCache["$originalBaseId;$rNum"] = Pair(hourlySales, now)
-                    } else {
                     }
                 }
                 salesCache[normalizedItemId]?.first ?: 0.0
@@ -263,11 +279,13 @@ class PriceFetcher {
                 val totalSales = auctions.size.toDouble()
                 val hourlySales = totalSales / durationHours
                 
+                Log.debug(this, "Sales for $normalizedItemId: $hourlySales/hr")
                 salesCache[normalizedItemId] = Pair(hourlySales, now)
                 hourlySales
             }
         } catch (e: Exception) {
-            null
+            Log.debug(this, "Failed to fetch sales for $itemId: ${e.message}")
+            return 0.0
         }
     }
 
@@ -288,12 +306,12 @@ class PriceFetcher {
             if (response.isSuccessful) {
                 response.body?.string()?.let { gson.fromJson(it, typeToken.type) }
             } else {
-                println("[ERROR] PriceFetcher: Failed to fetch $url - Code: ${response.code}")
+                Log.debug(this, "Failed to fetch $url - Code: ${response.code}")
                 null
             }
         }
     } catch (e: Exception) {
-        println("[ERROR] PriceFetcher: Exception fetching $url - ${e.message}")
+        Log.debug(this, "Exception fetching $url: ${e.message}")
         null
     }
 

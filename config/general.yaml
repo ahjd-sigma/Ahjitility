@@ -3,6 +3,8 @@ kat_scroll_multiplier: 2000.0
 forge_scroll_multiplier: 2000.0
 shard_scroll_multiplier: 2000.0
 autoscroll_speed: 25.0
+sidebar_width: 300.0
+debug_mode: false
 color_dark_bg: '#2b2b2b'
 color_darker_bg: '#1e1e1e'
 color_text_primary: '#cccccc'

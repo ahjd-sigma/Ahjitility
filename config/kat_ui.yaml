@@ -40,7 +40,6 @@ main_spacing: 10.0
 control_spacing: 15.0
 control_group_spacing: 20.0
 label_spacing: 5.0
-sidebar_width: 300.0
 search_field_width: 200.0
 sort_by_width: 200.0
 rarity_filter_width: 150.0

@@ -1,16 +1,20 @@
 package ui.forge
 
-import calculator.*
 import business.forge.*
-import utils.*
-import javafx.scene.layout.*
-import javafx.scene.control.*
-import javafx.collections.FXCollections
+import calculator.BaseCalculator
+import calculator.GenericListView
 import javafx.application.Platform
-import kotlinx.coroutines.*
-import javafx.scene.Node
-import javafx.scene.text.TextFlow
 import javafx.geometry.Insets
+import javafx.geometry.Pos
+import javafx.scene.Node
+import javafx.scene.control.ScrollPane
+import javafx.scene.control.SplitPane
+import javafx.scene.layout.Region
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import utils.*
 
 class ForgeCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher) {
     private val controls = ForgeControls()
@@ -19,13 +23,17 @@ class ForgeCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher)
     // Using IO dispatcher for background work
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+    override fun createTopBar(onBack: () -> Unit) = super.createTopBar(onBack).apply {
+        children.add(0, "Forge Calculator".label(color = Styles.ACCENT, size = 18, bold = true))
+    }
+
     override fun createContent(): Region = SplitPane().apply {
         // Use the class property listView
         
         val sidebar = RecipeSidebar(priceFetcher)
         val sidebarScroll = ScrollPane(sidebar.node).apply {
             applyDarkStyle()
-            enableAdvancedScrolling({ GeneralConfig.forgeScrollMultiplier })
+            enableAdvancedScrolling { GeneralConfig.forgeScrollMultiplier }
             isFitToWidth = true
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
         }
@@ -64,10 +72,18 @@ class ForgeCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher)
                 // Ensure prices are fetched (cached or new)
                 priceFetcher.fetchAllPrices()
                 
+                val searchQueries = config.searchText.split(",").map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+                
                 val calculatedResults = recipes
-                    .filter { 
-                        config.searchText.isBlank() || 
-                        it.displayName.contains(config.searchText, ignoreCase = true) 
+                    .filter { recipe ->
+                        if (searchQueries.isEmpty()) return@filter true
+                        
+                        val cleanName = recipe.displayName.lowercase().replace("_", " ")
+                        val rawName = recipe.displayName.lowercase()
+                        
+                        searchQueries.any { query ->
+                            cleanName.contains(query) || rawName.contains(query)
+                        }
                     }
                     .map { recipe ->
                         val sellPrice = priceFetcher.getSellPrice(recipe.itemId, config.isInstantSell, config.sourcePriority)
@@ -104,40 +120,71 @@ class ForgeCalculator(priceFetcher: PriceFetcher) : BaseCalculator(priceFetcher)
                     loading.set(false)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.debug(this, "Forge recalculation failed", e)
                 Platform.runLater { loading.set(false) }
             }
         }
     }
 
-    private fun createForgeCell(item: ForgeResult): Node = VBox().apply {
+    private fun createForgeCell(item: ForgeResult): Node = hbox(10.0) {
+        padding = Insets(10.0, 15.0, 10.0, 15.0)
+        alignment = Pos.CENTER_LEFT
+        val baseStyle = " -fx-border-color: transparent transparent #333333 transparent; -fx-border-width: 0 0 1 0; -fx-font-size: 13px;"
+        style = baseStyle
+        
         val profit = item.profit
         val hasPrice = item.sellValue > 0
-        
-        val textFlow = TextFlow(
-            text(if (item.isBazaar) "[BZ] " else "[AH] ", if (item.isBazaar) "cyan" else "pink"),
-            text("${item.recipe.displayName} ", Styles.TEXT_COLOR, bold = true),
-            text("- ", Styles.TEXT_COLOR),
-            if (hasPrice) text("${String.format("%,.0f", item.sellValue)} ", "orange")
-            else text("Price N/A ", Styles.TEXT_COLOR),
-            
-            if (hasPrice && item.totalCost > 0) {
-                val color = if (profit >= 0) "green" else "red"
-                val sign = if (profit >= 0) "+" else ""
-                text("($sign${String.format("%,.0f", profit)}) ", color)
-            } else text("(N/A) ", "#666666"),
+        val profitColor = if (profit >= 0) "green" else "red"
+        val profitSign = if (profit >= 0) "+" else ""
 
-            text("- ", "#666666"),
+        // Left side: Source and Name
+        children.add(vbox(2.0) {
+            children.addAll(
+                hbox(5.0) {
+                    children.addAll(
+                        (if (item.isBazaar) "[BZ]" else "[AH]").label(color = if (item.isBazaar) "cyan" else "pink", size = 10, bold = true),
+                        item.recipe.displayName.label(color = Styles.TEXT_COLOR, size = 14, bold = true)
+                    )
+                },
+                hbox(5.0) {
+                    children.addAll(
+                        "Duration: ".label(color = "#888888", size = 11),
+                        formatDuration(item.effectiveDuration).label(color = "cyan", size = 11)
+                    )
+                }
+            )
+        })
 
-            if (item.profitPerHour != 0.0) {
-                val color = if (item.profitPerHour >= 0) "green" else "red"
-                val sign = if (item.profitPerHour >= 0) "+" else ""
-                text("[$sign${String.format("%,.0f", item.profitPerHour)}/hr] ", color, bold = true)
-            } else text("[N/A/hr] ", "#666666"),
+        children.add(spacer())
 
-            text("(${formatDuration(item.effectiveDuration)})", "cyan", 11.0)
-        ).apply { padding = Insets(8.0, 10.0, 8.0, 10.0) }
+        // Right side: Price and Profit
+        children.add(vbox(2.0) {
+            alignment = Pos.TOP_RIGHT
+            children.addAll(
+                hbox(5.0) {
+                    alignment = Pos.CENTER_RIGHT
+                    children.addAll(
+                        "Profit: ".label(color = "#888888", size = 11),
+                        if (hasPrice && item.totalCost > 0) 
+                            "$profitSign${String.format("%,.0f", profit)}".label(color = profitColor, size = 13, bold = true)
+                        else 
+                            "N/A".label(color = "#666666", size = 13, bold = true)
+                    )
+                },
+                hbox(5.0) {
+                    alignment = Pos.CENTER_RIGHT
+                    children.addAll(
+                        if (item.profitPerHour != 0.0)
+                            "$profitSign${String.format("%,.0f/hr", item.profitPerHour)}".label(color = profitColor, size = 11, bold = true)
+                        else
+                            "N/A/hr".label(color = "#666666", size = 11, bold = true)
+                    )
+                }
+            )
+        })
 
-        children.addAll(textFlow, Separator().apply { style = "-fx-background-color: #333333; -fx-opacity: 0.3;" })
+        // Hover effect
+        setOnMouseEntered { style = "$baseStyle -fx-background-color: rgba(255, 255, 255, 0.05);" }
+        setOnMouseExited { style = baseStyle }
     }
 }

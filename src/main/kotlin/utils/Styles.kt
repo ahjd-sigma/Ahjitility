@@ -7,7 +7,7 @@ object Styles {
     val ACCENT get() = GeneralConfig.colorAccentBlue
 
     private fun style(vararg pairs: Pair<String, String>) =
-        pairs.joinToString("; ") { "-fx-${it.first}: ${it.second}" }
+        pairs.joinToString("; ", postfix = ";") { "-fx-${it.first}: ${it.second}" }
 
     val field get() = style(
         "background-color" to GeneralConfig.colorFieldBg,
@@ -35,6 +35,7 @@ object Styles {
 
     val listView get() = style(
         "background-color" to DARKER_BG,
-        "control-inner-background" to DARKER_BG
+        "control-inner-background" to DARKER_BG,
+        "font-size" to GeneralConfig.fontSizeSmall
     )
 }
